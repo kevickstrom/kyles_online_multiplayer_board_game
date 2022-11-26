@@ -5,6 +5,8 @@ import sys
 import random
 import time
 import pygame
+import button
+from player import Player
 
 WIDTH = 1600
 HEIGHT = 900
@@ -15,16 +17,15 @@ screen = pygame.display.set_mode((WIDTH, HEIGHT))
 pygame.display.set_caption("Rolling dice")
 
 # dice load
-face1 = pygame.image.load((os.path.join('dice-sheet', '1face.png')))
-face2 = pygame.image.load((os.path.join('dice-sheet', '2face.png')))
-face3 = pygame.image.load((os.path.join('dice-sheet', '3face.png')))
-face4 = pygame.image.load((os.path.join('dice-sheet', '4face.png')))
-face5 = pygame.image.load((os.path.join('dice-sheet', '5face.png')))
-face6 = pygame.image.load((os.path.join('dice-sheet', '6face.png')))
-faces = [face1, face2, face3, face4, face5, face6]
+faces = [pygame.image.load((os.path.join('dice-sheet', '1face.png'))),
+         pygame.image.load((os.path.join('dice-sheet', '2face.png'))),
+         pygame.image.load((os.path.join('dice-sheet', '3face.png'))),
+         pygame.image.load((os.path.join('dice-sheet', '4face.png'))),
+         pygame.image.load((os.path.join('dice-sheet', '5face.png'))),
+         pygame.image.load((os.path.join('dice-sheet', '6face.png')))]
 
 
-def draw():
+def draw(players):
     """
     blits the board and text to the screen
     """
@@ -80,10 +81,7 @@ def roll_dice():
 def start_menu():
     """
     Starting menu when the game is launched
-    Returns the name of the player
-        FUTURE:
-                has player fill out player class
-                -name and character
+    initializes and returns player - name, color
     """
     base_font = pygame.font.Font(None, 32)
     user_text = ''
@@ -94,6 +92,12 @@ def start_menu():
     # color of input box.
     color_passive = pygame.Color('grey')
     clock = pygame.time.Clock()
+
+    choice = 0
+    left_button = button.Button(WIDTH//2 - 250, HEIGHT//2, faces[choice], 1)
+    right_button = button.Button(WIDTH//2 + 250, HEIGHT//2, faces[choice + 1], 1)
+    color_choices = ["RED", "GREEN", "BLUE", "YELLOW", "CYAN", "MAGENTA"]
+
     menu = True
     active = False
     while menu:
@@ -122,23 +126,42 @@ def start_menu():
         else:
             color = color_passive
 
+        # enter color
+        if choice > 0:
+            if left_button.draw():
+                choice -= 1
+                left_button.image = faces[choice - 1]
+                right_button.image = faces[choice + 1]
+        if choice < 5:
+            if right_button.draw():
+                choice += 1
+                left_button.image = faces[choice - 1]
+                if choice < 5:
+                    right_button.image = faces[choice + 1]
+        color_text_surface = base_font.render("Choose a color:", True, (255, 255, 255))
+        screen.blit(color_text_surface, (WIDTH//2 - color_text_surface.get_width()//2, HEIGHT//2 - 100))
+        pygame.draw.circle(screen, color_choices[choice], (WIDTH//2, HEIGHT//2), 50)
+
+        # enter name
         pygame.draw.rect(screen, color, input_rect)
         user_text_surface = base_font.render(user_text, True, (255, 255, 255))
         name_text_surface = base_font.render("Enter your name:", True, (255, 255, 255))
         screen.blit(user_text_surface, (input_rect.x + 5, input_rect.y + 5))
         screen.blit(name_text_surface, (input_rect.x, input_rect.y - name_text_surface.get_height()))
         input_rect.w = max(100, user_text_surface.get_width() + 10)
+
         pygame.display.flip()
         clock.tick(30)
-
-    return user_text
+    player = Player(user_text, color_choices[choice])
+    return player
 
 
 def main():
     """
     Main game loop
     """
-    draw()
+    players = []
+    draw(players)
     clock = pygame.time.Clock()
     roll = False
     stop_roll = True
@@ -149,7 +172,7 @@ def main():
     while run:
         # start menu
         if firststart:
-            name = start_menu()
+            players.append(start_menu())
             firststart = False
 
         for event in pygame.event.get():
@@ -162,7 +185,7 @@ def main():
             if event.type == pygame.QUIT:
                 run = False
 
-        draw()
+        draw(players)
         if roll:
             if stop_roll:
                 roll = False
