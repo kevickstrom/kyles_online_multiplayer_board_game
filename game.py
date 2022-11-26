@@ -2,6 +2,7 @@
 
 import os
 import random
+import time
 import pygame
 
 WIDTH = 1600
@@ -40,25 +41,12 @@ def draw():
     boardrect.centery = background.get_rect().centery
     background.blit(board, boardrect)
 
-    # load image
-    # dice = pygame.image.load("giphy.gif")
-    # if roll:
-    #     # count += 1
-    #     # if count == 15:
-    #     #     count = 0
-    #     num = random.randrange(0, 6)
-    #     dice = faces[num]
-    #
-    #     dicerect = dice.get_rect()
-    #     dicerect.centerx = background.get_rect().centerx
-    #     dicerect.centery = background.get_rect().centery
-    #     background.blit(dice, dicerect)
-
     # display text
     font = pygame.font.Font(None, 36)
-    text = font.render("Some dice rolling", True, (10, 10, 10))
+    text = font.render("press space to roll dice", True, (10, 10, 10))
     textpos = text.get_rect()
     textpos.centerx = background.get_rect().centerx
+    textpos.centery = background.get_rect().centery - 100
     background.blit(text, textpos)
 
     # blit to screen
@@ -66,13 +54,27 @@ def draw():
 
 
 def roll_dice():
-    num = random.randrange(0, 6)
-    dice = faces[num]
+    """
+    Blits the dice and returns their result
+    """
+    num1 = random.randrange(0, 6)
+    dice1 = faces[num1]
+    dice1rect = dice1.get_rect()
+    dice1rect.centerx = screen.get_rect().centerx - 25
+    dice1rect.centery = screen.get_rect().centery
+    screen.blit(dice1, dice1rect)
 
-    dicerect = dice.get_rect()
-    dicerect.centerx = screen.get_rect().centerx
-    dicerect.centery = screen.get_rect().centery
-    screen.blit(dice, dicerect)
+    num2 = random.randrange(0, 6)
+    dice2 = faces[num2]
+    dice2rect = dice2.get_rect()
+    dice2rect.centerx = screen.get_rect().centerx + 25
+    dice2rect.centery = screen.get_rect().centery
+    screen.blit(dice2, dice2rect)
+
+    result1 = num1 + 1
+    result2 = num2 + 1
+
+    return result1 + result2
 
 
 def main():
@@ -82,22 +84,27 @@ def main():
     draw()
     clock = pygame.time.Clock()
     roll = False
+    stop_roll = True
 
     # event loop
     while True:
 
-        if pygame.key.get_pressed()[pygame.K_b] and not roll:
-            roll = True
-        elif roll and pygame.key.get_pressed()[pygame.K_b]:
-            roll = False
-
         for event in pygame.event.get():
+            if event.type == pygame.KEYDOWN:
+                if event.key == pygame.K_SPACE and not roll:
+                    roll = True
+                    stop_roll = False
+                elif event.key == pygame.K_SPACE and roll:
+                    stop_roll = True
             if event.type == pygame.QUIT:
                 return
 
         draw()
         if roll:
-            roll_dice()
+            roll_result = roll_dice()
+            if stop_roll:
+                time.sleep(1)
+                roll = False
         pygame.display.flip()
         clock.tick(30)
 
