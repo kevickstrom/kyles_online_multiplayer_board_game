@@ -1,5 +1,5 @@
 # button class for the game and menus
-from game import screen
+from client import screen
 import time
 import pygame
 

@@ -16,7 +16,7 @@ WIDTH = display_info.current_w
 HEIGHT = display_info.current_h
 screen = pygame.display.set_mode((WIDTH, HEIGHT), pygame.FULLSCREEN)
 fullscreen = True
-pygame.display.set_caption("Rolling dice")
+pygame.display.set_caption("Monopoly but only Kyle can cheat")
 base_font = pygame.font.Font(None, 32)
 
 # load images
@@ -29,21 +29,21 @@ faces = [pygame.image.load((os.path.join('dice-sheet', '1face.png'))),
          pygame.image.load((os.path.join('dice-sheet', '6face.png')))]
 
 # game board
-board = pygame.image.load("board.png")
+board = pygame.image.load(os.path.join('assets', "board.png"))
 board = pygame.transform.smoothscale(board, (HEIGHT, HEIGHT))
 boardrect = board.get_rect()
 
 # button images
-settingsimg = pygame.image.load("settings.png")
-exitimg = pygame.image.load("exit.png")
-backimg = pygame.image.load("back.png")
-exitimg2 = pygame.image.load("exit2.png")
-backimg2 = pygame.image.load("back2.png")
-fullscreenimg = pygame.image.load("fullscreen.png")
-ninetwentyimg = pygame.image.load("1920x1080.png")
-sixteenhundredimg = pygame.image.load("1600x900.png")
-twelveeightyimg = pygame.image.load("1280x720.png")
-githubimg = pygame.image.load("github.png")
+settingsimg = pygame.image.load(os.path.join('assets', "settings.png"))
+exitimg = pygame.image.load(os.path.join('assets', "exit.png"))
+backimg = pygame.image.load(os.path.join('assets', "back.png"))
+exitimg2 = pygame.image.load(os.path.join('assets', "exit2.png"))
+backimg2 = pygame.image.load(os.path.join('assets', "back2.png"))
+fullscreenimg = pygame.image.load(os.path.join('assets', "fullscreen.png"))
+ninetwentyimg = pygame.image.load(os.path.join('assets', "1920x1080.png"))
+sixteenhundredimg = pygame.image.load(os.path.join('assets', "1600x900.png"))
+twelveeightyimg = pygame.image.load(os.path.join('assets', "1280x720.png"))
+githubimg = pygame.image.load(os.path.join('assets', "github.png"))
 
 
 def draw_board():
@@ -243,22 +243,22 @@ def settings_menu():
                 HEIGHT = display_info.current_h
                 reschange = True
             else:
-                screen = pygame.display.set_mode((WIDTH, HEIGHT - 50), pygame.RESIZABLE)
+                screen = pygame.display.set_mode((WIDTH, HEIGHT - 50))
                 WIDTH = display_info.current_w
                 HEIGHT = display_info.current_h
                 reschange = True
         if ninetwenty.draw():
-            screen = pygame.display.set_mode((1920, 1080), pygame.RESIZABLE)
+            screen = pygame.display.set_mode((1920, 1080))
             WIDTH = 1920
             HEIGHT = 1080
             reschange = True
         if sixteenhundred.draw():
-            screen = pygame.display.set_mode((1600, 900), pygame.RESIZABLE)
+            screen = pygame.display.set_mode((1600, 900))
             WIDTH = 1600
             HEIGHT = 900
             reschange = True
         if twelveeighty.draw():
-            screen = pygame.display.set_mode((1280, 720), pygame.RESIZABLE)
+            screen = pygame.display.set_mode((1280, 720))
             WIDTH = 1280
             HEIGHT = 720
             reschange = True
@@ -276,6 +276,15 @@ def settings_menu():
         if reschange:
             set_screen_height(HEIGHT)
             set_screen_width(WIDTH)
+
+            fullscreen_button = button.Button(200, HEIGHT // 2 - 500, fullscreenimg, 0.75)
+            ninetwenty = button.Button(200, HEIGHT // 2 - 400, ninetwentyimg, 0.75)
+            sixteenhundred = button.Button(200, HEIGHT // 2 - 300, sixteenhundredimg, 0.75)
+            twelveeighty = button.Button(200, HEIGHT // 2 - 200, twelveeightyimg, 0.75)
+            back_button = button.Button(175, HEIGHT // 2 - 100, backimg2, 1)
+            exit_button = button.Button(175, HEIGHT // 2 + 100, exitimg2, 1)
+            github = button.Button(100, HEIGHT - 200, githubimg, 0.75)
+
             reschange = False
         pygame.display.flip()
         clock.tick(30)
@@ -296,8 +305,9 @@ def set_screen_width(width):
 
 def set_screen_height(height):
     global HEIGHT
+    global board
     global boardrect
-    board = pygame.image.load("board.png")
+    board = pygame.image.load(os.path.join('assets', "board.png"))
     board = pygame.transform.smoothscale(board, (height, height))
     boardrect = board.get_rect()
     HEIGHT = height
