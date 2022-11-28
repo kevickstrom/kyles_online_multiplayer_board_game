@@ -30,3 +30,9 @@ class Button:
                 self.clicked = True
         screen.blit(self.image, (self.rect.x, self.rect.y))
         return self.clicked
+
+    def update_pos(self, x, y):
+        """
+        updates position
+        """
+        self.rect.topleft = (x, y)

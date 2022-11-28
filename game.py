@@ -4,6 +4,7 @@ import os
 import sys
 import random
 import time
+import webbrowser
 import pygame
 import button
 from player import Player
@@ -14,6 +15,7 @@ display_info = pygame.display.Info()
 WIDTH = display_info.current_w
 HEIGHT = display_info.current_h
 screen = pygame.display.set_mode((WIDTH, HEIGHT), pygame.FULLSCREEN)
+fullscreen = True
 pygame.display.set_caption("Rolling dice")
 base_font = pygame.font.Font(None, 32)
 
@@ -34,6 +36,14 @@ boardrect = board.get_rect()
 # button images
 settingsimg = pygame.image.load("settings.png")
 exitimg = pygame.image.load("exit.png")
+backimg = pygame.image.load("back.png")
+exitimg2 = pygame.image.load("exit2.png")
+backimg2 = pygame.image.load("back2.png")
+fullscreenimg = pygame.image.load("fullscreen.png")
+ninetwentyimg = pygame.image.load("1920x1080.png")
+sixteenhundredimg = pygame.image.load("1600x900.png")
+twelveeightyimg = pygame.image.load("1280x720.png")
+githubimg = pygame.image.load("github.png")
 
 
 def draw_board():
@@ -64,12 +74,14 @@ def draw_board():
 def draw_players(players):
     # settings = button.Button(-10, 10, settingsimg, 0.125)
     # exit_button = button.Button(WIDTH, HEIGHT // 2 + 200, exitimg, 1)
+    WIDTH = get_screen_width()
+    HEIGHT = get_screen_height()
     settings = button.Button(30, 0, settingsimg, 0.05)
     exit_button = button.Button(0, 0, exitimg, 0.05)
     border = pygame.Rect(0, 0, WIDTH - boardrect.width, exit_button.rect.height + 2)
     pygame.draw.rect(screen, (52, 78, 91), border)
     if settings.draw():
-        pass
+        settings_menu()
     if exit_button.draw():
         pygame.quit()
         sys.exit()
@@ -202,12 +214,93 @@ def settings_menu():
     """
     Settings menu, button on left side of the board
     """
-    pass
-    # exit_button = button.Button(WIDTH, HEIGHT//2 + 200, exitimg, 1)
-    # screen.fill((52, 78, 91))
-    # if exit_button.draw():
-    #     pygame.quit()
-    #     sys.exit()
+    WIDTH = display_info.current_w
+    HEIGHT = display_info.current_h
+
+
+    # buttons
+    fullscreen_button = button.Button(200, HEIGHT//2 - 500, fullscreenimg, 0.75)
+    ninetwenty = button.Button(200, HEIGHT//2 - 400, ninetwentyimg, 0.75)
+    sixteenhundred = button.Button(200, HEIGHT//2 - 300, sixteenhundredimg, 0.75)
+    twelveeighty = button.Button(200, HEIGHT//2 - 200, twelveeightyimg, 0.75)
+    back_button = button.Button(175, HEIGHT // 2 - 100, backimg2, 1)
+    exit_button = button.Button(175, HEIGHT // 2 + 100, exitimg2, 1)
+    github = button.Button(100, HEIGHT - 200, githubimg, 0.75)
+
+
+    clock = pygame.time.Clock()
+    menu = True
+    reschange = False
+    while menu:
+        global screen
+        screen.fill((52, 78, 91))
+        if fullscreen_button.draw():
+            global fullscreen
+            fullscreen = not fullscreen
+            if fullscreen:
+                screen = pygame.display.set_mode((WIDTH, HEIGHT), pygame.FULLSCREEN)
+                WIDTH = display_info.current_w
+                HEIGHT = display_info.current_h
+                reschange = True
+            else:
+                screen = pygame.display.set_mode((WIDTH, HEIGHT - 50), pygame.RESIZABLE)
+                WIDTH = display_info.current_w
+                HEIGHT = display_info.current_h
+                reschange = True
+        if ninetwenty.draw():
+            screen = pygame.display.set_mode((1920, 1080), pygame.RESIZABLE)
+            WIDTH = 1920
+            HEIGHT = 1080
+            reschange = True
+        if sixteenhundred.draw():
+            screen = pygame.display.set_mode((1600, 900), pygame.RESIZABLE)
+            WIDTH = 1600
+            HEIGHT = 900
+            reschange = True
+        if twelveeighty.draw():
+            screen = pygame.display.set_mode((1280, 720), pygame.RESIZABLE)
+            WIDTH = 1280
+            HEIGHT = 720
+            reschange = True
+        if back_button.draw():
+            menu = False
+        if exit_button.draw():
+            pygame.quit()
+            sys.exit()
+        if github.draw():
+            webbrowser.open(r"https://github.com/kevickstrom/monopoly_butonlykylecancheat")
+        for event in pygame.event.get():
+            if event.type == pygame.QUIT:
+                pygame.quit()
+                sys.exit()
+        if reschange:
+            set_screen_height(HEIGHT)
+            set_screen_width(WIDTH)
+            reschange = False
+        pygame.display.flip()
+        clock.tick(30)
+
+
+def get_screen_width():
+    return WIDTH
+
+
+def get_screen_height():
+    return HEIGHT
+
+
+def set_screen_width(width):
+    global WIDTH
+    WIDTH = width
+
+
+def set_screen_height(height):
+    global HEIGHT
+    global boardrect
+    board = pygame.image.load("board.png")
+    board = pygame.transform.smoothscale(board, (height, height))
+    boardrect = board.get_rect()
+    HEIGHT = height
 
 
 def main():
@@ -237,10 +330,6 @@ def main():
                     stop_roll = False
                 elif event.key == pygame.K_SPACE and roll:
                     stop_roll = True
-            if event.type == pygame.VIDEORESIZE:
-                screen = pygame.display.set_mode((event.w, event.h), pygame.RESIZABLE)
-                WIDTH = event.w
-                HEIGHT = event.h
             if event.type == pygame.QUIT:
                 run = False
 
