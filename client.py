@@ -89,21 +89,21 @@ def draw_players(players):
     for player in players:
 
         # blit color
-        pygame.draw.circle(screen, player.color, (i + 20, i + 50), 10)
+        pygame.draw.circle(screen, player.color, (20, i + 50), 10)
 
         # blit name
         player_name = base_font.render(player.name, True, (255, 255, 255))
         player_namerect = player_name.get_rect()
         player_namerect.centery = i + 50
-        screen.blit(player_name, (i + 40, player_namerect.centery))
+        screen.blit(player_name, (40, player_namerect.centery))
 
         # blit money
         money = str(player._money)
         player_money = base_font.render(f"${money}", True, (255, 255, 255))
         player_moneyrect = player_money.get_rect()
-        player_moneyrect.centery = i + player_moneyrect.height + player_namerect.centery
-        screen.blit(player_money, (i + 40, player_moneyrect.centery))
-        i += 20
+        player_moneyrect.centery = player_moneyrect.height + player_namerect.centery
+        screen.blit(player_money, (40, player_moneyrect.centery))
+        i += 100
 
 
 def roll_dice():
