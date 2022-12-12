@@ -4,9 +4,11 @@ class Player:
     """
     Player in the monopoly game with name, color, money and property
     """
-    def __init__(self, name, color):
-        self._name = name
-        self._color = color
+    def __init__(self, id):
+        self.id = id
+        self.name = None
+        self.color = (255, 255, 255)
         self._money = 1500
-        self._property = []
+        self._properties = []
+        self.ready = False
 

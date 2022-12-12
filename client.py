@@ -8,6 +8,7 @@ import webbrowser
 import pygame
 import button
 from player import Player
+from network import Network
 
 # initialize screen
 pygame.init()
@@ -72,8 +73,6 @@ def draw_board():
 
 
 def draw_players(players):
-    # settings = button.Button(-10, 10, settingsimg, 0.125)
-    # exit_button = button.Button(WIDTH, HEIGHT // 2 + 200, exitimg, 1)
     WIDTH = get_screen_width()
     HEIGHT = get_screen_height()
     settings = button.Button(30, 0, settingsimg, 0.05)
@@ -90,10 +89,10 @@ def draw_players(players):
     for player in players:
 
         # blit color
-        pygame.draw.circle(screen, player._color, (i + 20, i + 50), 10)
+        pygame.draw.circle(screen, player.color, (i + 20, i + 50), 10)
 
         # blit name
-        player_name = base_font.render(player._name, True, (255, 255, 255))
+        player_name = base_font.render(player.name, True, (255, 255, 255))
         player_namerect = player_name.get_rect()
         player_namerect.centery = i + 50
         screen.blit(player_name, (i + 40, player_namerect.centery))
@@ -131,7 +130,7 @@ def roll_dice():
     return result1 + result2
 
 
-def start_menu():
+def start_menu(player):
     """
     Starting menu when the game is launched
     initializes and returns player - name, color
@@ -206,8 +205,10 @@ def start_menu():
 
         pygame.display.flip()
         clock.tick(30)
-    player = Player(user_text, color_choices[choice])
-    return player
+    me = Player(player)
+    me.name = user_text
+    me.color = color_choices[choice]
+    return me
 
 
 def settings_menu():
@@ -317,9 +318,9 @@ def main():
     """
     Main game loop
     """
-    players = []
+    n = Network()
+    player = int(n.getP())
     draw_board()
-    draw_players(players)
     clock = pygame.time.Clock()
     roll = False
     stop_roll = True
@@ -330,8 +331,15 @@ def main():
     while run:
         # start menu
         if firststart:
-            players.append(start_menu())
             firststart = False
+            n.update(start_menu(player))
+
+        try:
+            game = n.send("get")
+        except:
+            run = False
+            print("Couldn't get game")
+            break
 
         for event in pygame.event.get():
             if event.type == pygame.KEYDOWN:
@@ -344,7 +352,7 @@ def main():
                 run = False
 
         draw_board()
-        draw_players(players)
+        draw_players(game.players)
         if roll:
             if stop_roll:
                 roll = False
