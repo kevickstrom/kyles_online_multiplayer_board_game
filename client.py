@@ -35,21 +35,15 @@ board = pygame.transform.smoothscale(board, (HEIGHT, HEIGHT))
 boardrect = board.get_rect()
 
 # button images
-settingsimg = pygame.image.load(os.path.join('assets', "settings.png"))
+settingsimg = pygame.image.load(os.path.join('assets', "settings2.png"))
 exitimg = pygame.image.load(os.path.join('assets', "exit.png"))
 backimg = pygame.image.load(os.path.join('assets', "back.png"))
-exitimg2 = pygame.image.load(os.path.join('assets', "exit2.png"))
-backimg2 = pygame.image.load(os.path.join('assets', "back2.png"))
-fullscreenimg = pygame.image.load(os.path.join('assets', "fullscreen.png"))
-ninetwentyimg = pygame.image.load(os.path.join('assets', "1920x1080.png"))
-sixteenhundredimg = pygame.image.load(os.path.join('assets', "1600x900.png"))
-twelveeightyimg = pygame.image.load(os.path.join('assets', "1280x720.png"))
 githubimg = pygame.image.load(os.path.join('assets', "github.png"))
 
 
 def draw_board():
     """
-    blits the board and text to the screen
+    Draws the board
     """
     # fill background
     background = pygame.Surface(screen.get_size())
@@ -73,10 +67,11 @@ def draw_board():
 
 
 def draw_players(players):
-    WIDTH = get_screen_width()
-    HEIGHT = get_screen_height()
-    settings = button.Button(30, 0, settingsimg, 0.05)
-    exit_button = button.Button(0, 0, exitimg, 0.05)
+    """
+    Draws everything left of the board
+    """
+    settings = button.Button(96, 16, settingsimg, 0.5)
+    exit_button = button.Button(32, 16, exitimg, 0.5)
     border = pygame.Rect(0, 0, WIDTH - boardrect.width, exit_button.rect.height + 2)
     pygame.draw.rect(screen, (52, 78, 91), border)
     if settings.draw():
@@ -215,54 +210,19 @@ def settings_menu():
     """
     Settings menu, button on left side of the board
     """
-    WIDTH = display_info.current_w
-    HEIGHT = display_info.current_h
 
 
     # buttons
-    fullscreen_button = button.Button(200, HEIGHT//2 - 500, fullscreenimg, 0.75)
-    ninetwenty = button.Button(200, HEIGHT//2 - 400, ninetwentyimg, 0.75)
-    sixteenhundred = button.Button(200, HEIGHT//2 - 300, sixteenhundredimg, 0.75)
-    twelveeighty = button.Button(200, HEIGHT//2 - 200, twelveeightyimg, 0.75)
-    back_button = button.Button(175, HEIGHT // 2 - 100, backimg2, 1)
-    exit_button = button.Button(175, HEIGHT // 2 + 100, exitimg2, 1)
-    github = button.Button(100, HEIGHT - 200, githubimg, 0.75)
+    back_button = button.Button(WIDTH // 2, HEIGHT // 2 - 100, backimg, 1)
+    exit_button = button.Button(WIDTH // 2, HEIGHT // 2, exitimg, 1)
+    github = button.Button(WIDTH // 2, HEIGHT // 2 + 100, githubimg, 1)
 
 
     clock = pygame.time.Clock()
     menu = True
-    reschange = False
     while menu:
         global screen
         screen.fill((52, 78, 91))
-        if fullscreen_button.draw():
-            global fullscreen
-            fullscreen = not fullscreen
-            if fullscreen:
-                screen = pygame.display.set_mode((WIDTH, HEIGHT), pygame.FULLSCREEN)
-                WIDTH = display_info.current_w
-                HEIGHT = display_info.current_h
-                reschange = True
-            else:
-                screen = pygame.display.set_mode((WIDTH, HEIGHT - 50))
-                WIDTH = display_info.current_w
-                HEIGHT = display_info.current_h
-                reschange = True
-        if ninetwenty.draw():
-            screen = pygame.display.set_mode((1920, 1080))
-            WIDTH = 1920
-            HEIGHT = 1080
-            reschange = True
-        if sixteenhundred.draw():
-            screen = pygame.display.set_mode((1600, 900))
-            WIDTH = 1600
-            HEIGHT = 900
-            reschange = True
-        if twelveeighty.draw():
-            screen = pygame.display.set_mode((1280, 720))
-            WIDTH = 1280
-            HEIGHT = 720
-            reschange = True
         if back_button.draw():
             menu = False
         if exit_button.draw():
@@ -274,44 +234,8 @@ def settings_menu():
             if event.type == pygame.QUIT:
                 pygame.quit()
                 sys.exit()
-        if reschange:
-            set_screen_height(HEIGHT)
-            set_screen_width(WIDTH)
-
-            fullscreen_button = button.Button(200, HEIGHT // 2 - 500, fullscreenimg, 0.75)
-            ninetwenty = button.Button(200, HEIGHT // 2 - 400, ninetwentyimg, 0.75)
-            sixteenhundred = button.Button(200, HEIGHT // 2 - 300, sixteenhundredimg, 0.75)
-            twelveeighty = button.Button(200, HEIGHT // 2 - 200, twelveeightyimg, 0.75)
-            back_button = button.Button(175, HEIGHT // 2 - 100, backimg2, 1)
-            exit_button = button.Button(175, HEIGHT // 2 + 100, exitimg2, 1)
-            github = button.Button(100, HEIGHT - 200, githubimg, 0.75)
-
-            reschange = False
         pygame.display.flip()
         clock.tick(30)
-
-
-def get_screen_width():
-    return WIDTH
-
-
-def get_screen_height():
-    return HEIGHT
-
-
-def set_screen_width(width):
-    global WIDTH
-    WIDTH = width
-
-
-def set_screen_height(height):
-    global HEIGHT
-    global board
-    global boardrect
-    board = pygame.image.load(os.path.join('assets', "board.png"))
-    board = pygame.transform.smoothscale(board, (height, height))
-    boardrect = board.get_rect()
-    HEIGHT = height
 
 
 def main():
