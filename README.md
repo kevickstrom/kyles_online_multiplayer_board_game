@@ -1,5 +1,7 @@
 # monopoly but only kyle can cheat
-its monopoly but only kyle can cheat
+its monopoly but only kyle can cheat  
+
+made using pygame and sockets
 
 this is what the board looks like right now
 
