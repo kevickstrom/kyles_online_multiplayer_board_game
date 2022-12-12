@@ -1,4 +1,4 @@
-# monopoly but only kyle can cheat
+# kyles online multiplayer board game
 its monopoly but only kyle can cheat  
 
 made using pygame and sockets
