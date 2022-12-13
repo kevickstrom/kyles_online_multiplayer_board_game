@@ -3,7 +3,6 @@ import socket
 import pickle
 from _thread import *
 from game import *
-import player
 
 server = "10.0.0.142"
 port = 5555
@@ -64,7 +63,9 @@ def threaded_client(conn, p, gameId):
                         # update player data
                         if game.players[i].id == data.id:
                             game.players[i] = data
-                        if game.players[i].ready:
+
+                    for player in game.players:
+                        if player.ready:
                             allready = True
                         else:
                             allready = False
@@ -98,7 +99,7 @@ while True:
         print("Creating a new game...")
         p = 0
     else:
-        games[gameId].ready = True
+        # games[gameId].ready = True
         p = len(games[gameId].players)
 
     start_new_thread(threaded_client, (conn, p, gameId))

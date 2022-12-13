@@ -68,7 +68,7 @@ def draw_board():
     screen.blit(background, (0, 0))
 
 
-def draw_players(game, myself: Player):
+def draw_players(game, myself: Player) -> Player:
     """
     Draws everything left of the board
     """
@@ -112,6 +112,8 @@ def draw_players(game, myself: Player):
         player_moneyrect.centery = player_moneyrect.height + player_namerect.centery
         screen.blit(player_money, (40, player_moneyrect.centery))
         i += 100
+
+    return myself
 
 
 def roll_dice() -> (int, int):
@@ -294,7 +296,7 @@ def main():
 
         # drawing to screen
         draw_board()
-        draw_players(game, myself)
+        myself = draw_players(game, myself)
         if roll:
             if stop_roll:
                 roll = False
