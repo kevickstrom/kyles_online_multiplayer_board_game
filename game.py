@@ -21,8 +21,11 @@ class Game:
         """
         self.started = True
         # sets player location to go using id 0
+        i = 0
         for player in self.players:
             player.location = self.props[0]
+            player.spot = i
+            i += 1
 
         firstturn = random.randrange(0, len(self.players), 1)
         self.turn = self.players[firstturn].id
@@ -31,7 +34,7 @@ class Game:
         d1 = random.randrange(0, 6)
         d2 = random.randrange(0, 6)
         self.players[firstturn].lastroll = (d1, d2)
-        self.players[firstturn].nextlocation = self.players[firstturn].location + d1 + d2
+        self.players[firstturn].nextlocation = self.players[firstturn].location + d1 + d2 + 2
 
     def play(self):
         """
