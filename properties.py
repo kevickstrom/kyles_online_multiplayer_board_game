@@ -16,10 +16,7 @@ class Property:
         self.hotels = 0
         self.hotel_price = None
         self.mortgaged = False
-        self.spot1 = None  # holds (x,y) location of first available spot for the client to fill in
-        self.spot2 = None
-        self.spot2 = None
-        self.spot2 = None
+        self.spots = []  # holds (x,y) location of spots for the client to fill in
         self.next = None
         self.back = None
 

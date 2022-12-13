@@ -12,7 +12,9 @@ class Player:
         self._properties = []
         self.ready = False
         self.location = None
+        self.nextlocation = None
         self.rolling = False
+        self.moving = 0
         self.lastroll = (0, 0)
 
     def move(self, location):

@@ -48,23 +48,23 @@ properties = PropertyMap()
 propwidth = boardrect.width // 11
 propheight = propwidth * 2
 # assign property's player screen locations
-properties.inorder[0].spot1 = (WIDTH - (2 * propwidth) + 20, HEIGHT - 50)
-properties.inorder[0].spot2 = (WIDTH - (2 * propwidth) + 20, HEIGHT - 10)
-properties.inorder[0].spot3 = (WIDTH - (2 * propwidth) + 40, HEIGHT - 50)
-properties.inorder[0].spot4 = (WIDTH - (2 * propwidth) + 40, HEIGHT - 10)
+properties.inorder[0].spots.append((WIDTH - (2 * propwidth) + 20, HEIGHT - 50))
+properties.inorder[0].spots.append((WIDTH - (2 * propwidth) + 20, HEIGHT - 10))
+properties.inorder[0].spots.append((WIDTH - (2 * propwidth) + 40, HEIGHT - 50))
+properties.inorder[0].spots.append((WIDTH - (2 * propwidth) + 40, HEIGHT - 10))
 xshift1 = 2 * (propwidth // 3)
 xshift2 = 1 * (propwidth // 3)
 # bottom row
 for i in range(1, 8):
-    properties.inorder[i].spot1 = (WIDTH - (2 * propwidth) - i * xshift1, HEIGHT - propheight)
-    properties.inorder[i].spot2 = (WIDTH - (2 * propwidth) - i * xshift1, HEIGHT - propheight + 30)
-    properties.inorder[i].spot3 = (WIDTH - (2 * propwidth) - i * xshift2, HEIGHT - propheight)
-    properties.inorder[i].spot4 = (WIDTH - (2 * propwidth) - i * xshift2, HEIGHT - propheight + 30)
+    properties.inorder[i].spots.append((WIDTH - (2 * propwidth) - i * xshift1, HEIGHT - propheight))
+    properties.inorder[i].spots.append((WIDTH - (2 * propwidth) - i * xshift1, HEIGHT - propheight + 30))
+    properties.inorder[i].spots.append((WIDTH - (2 * propwidth) - i * xshift2, HEIGHT - propheight))
+    properties.inorder[i].spots.append((WIDTH - (2 * propwidth) - i * xshift2, HEIGHT - propheight + 30))
 # jail corner
-properties.inorder[8].spot1 = (WIDTH - (2 * propwidth) - 9 * xshift1, HEIGHT - propheight)
-properties.inorder[8].spot2 = (WIDTH - (2 * propwidth) - 9 * xshift1, HEIGHT - propheight + 30)
-properties.inorder[8].spot3 = (WIDTH - (2 * propwidth) - 9 * xshift2, HEIGHT - propheight)
-properties.inorder[8].spot4 = (WIDTH - (2 * propwidth) - 9 * xshift2, HEIGHT - propheight + 30)
+properties.inorder[8].spots.append((WIDTH - (2 * propwidth) - 9 * xshift1, HEIGHT - propheight))
+properties.inorder[8].spots.append((WIDTH - (2 * propwidth) - 9 * xshift1, HEIGHT - propheight + 30))
+properties.inorder[8].spots.append((WIDTH - (2 * propwidth) - 9 * xshift2, HEIGHT - propheight))
+properties.inorder[8].spots.append((WIDTH - (2 * propwidth) - 9 * xshift2, HEIGHT - propheight + 30))
 
 
 def draw_board():
@@ -146,7 +146,19 @@ def draw_players(game):
     """
     # pygame.draw.circle(screen, player.color, (20, i + 50), 10)
     for player in game.players:
-        pygame.draw.circle(screen, player.color, properties.inorder[player.location].spot1, 10)
+        pygame.draw.circle(screen, player.color, properties.inorder[player.location].spots[0], 10)
+
+        if player.moving > 0:
+            x = properties.inorder[player.location].spots[0][0] - (10 * player.moving)
+            y = properties.inorder[player.location].spots[0][1]
+
+            if abs(x - properties.inorder[player.nextlocation].spots[0]) < 20:
+                player.moving = 0
+                player.location = player.nextlocation
+                pygame.draw.circle(screen, player.color, properties.inorder[player.nextlocation].spots[0], 10)
+
+            else:
+                pygame.draw.circle(screen, player.color, (x, y), 10)
 
 
 def roll_dice(x=-1, y=-1):
@@ -332,13 +344,9 @@ def main():
             if event.type == pygame.KEYDOWN:
                 if myself.rolling:
                     if event.key == pygame.K_SPACE and not roll:
-                        roll_dice()
                         roll = True
                         stop_roll = False
                     elif event.key == pygame.K_SPACE and roll:
-                        roll_dice(myself.lastroll[0], myself.lastroll[1])
-                        roll = False
-                        myself.rolling = False
                         stop_roll = True
             if event.type == pygame.QUIT:
                 run = False
@@ -346,15 +354,18 @@ def main():
         # drawing to screen
         draw_board()
         myself = draw_ui(game, myself)
-        # if roll:
-        #     if stop_roll:
-        #         roll = False
-        #         time.sleep(1)
-        #     else:
-        #         roll_result = roll_dice()
-
         if game.started:
             draw_players(game)
+        if roll:
+            if stop_roll:
+                roll = False
+                myself.rolling = False
+                roll_dice(myself.lastroll[0], myself.lastroll[1])
+                time.sleep(1)
+                myself.moving = 1
+            else:
+                roll_dice()
+
         pygame.display.flip()
         clock.tick(30)
 
