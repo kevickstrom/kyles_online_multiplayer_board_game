@@ -59,11 +59,15 @@ def threaded_client(conn, p, gameId):
                 if not data:
                     break
                 else:
+                    allready = False
                     for i in range(len(game.players)):
                         # update player data
                         if game.players[i].id == data.id:
                             game.players[i] = data
-
+                        if game.players[i].ready:
+                            allready = True
+                        else:
+                            allready = False
                     # send updated game
                     conn.sendall(pickle.dumps(game))
             else:

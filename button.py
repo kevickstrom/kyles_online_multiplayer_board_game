@@ -43,3 +43,4 @@ class Button:
         width = img.get_width()
         height = img.get_height()
         self.image = pygame.transform.smoothscale(img, (int(width * self.scale), int(height * self.scale)))
+        self.rect = self.image.get_rect()

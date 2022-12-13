@@ -68,13 +68,14 @@ def draw_board():
     screen.blit(background, (0, 0))
 
 
-def draw_players(players: list[Player], myself: Player):
+def draw_players(game, myself: Player):
     """
     Draws everything left of the board
     """
     settings = button.Button(96, 16, settingsimg, 0.5)
     exit_button = button.Button(32, 16, exitimg, 0.5)
-    ready_button = button.Button(50, HEIGHT - 50, notreadyimg)
+    notready_button = button.Button(boardrect.left - 96, HEIGHT - 50, notreadyimg)
+    ready_button = button.Button(boardrect.left - 96, HEIGHT - 50, readyimg)
     border = pygame.Rect(0, 0, WIDTH - boardrect.width, exit_button.rect.height + 2)
     pygame.draw.rect(screen, (52, 78, 91), border)
     if settings.draw():
@@ -82,16 +83,18 @@ def draw_players(players: list[Player], myself: Player):
     if exit_button.draw():
         pygame.quit()
         sys.exit()
-    if ready_button.draw():
+    if not game.ready:
         if not myself.ready:
-            myself.ready = True
-            ready_button.changeimg(readyimg)
-        elif myself.ready:
-            myself.ready = False
-            ready_button.changeimg(notreadyimg)
+            if notready_button.draw():
+                myself.ready = True
+                time.sleep(0.05)
+        else:
+            if ready_button.draw():
+                myself.ready = False
+                time.sleep(0.05)
 
     i = 0
-    for player in players:
+    for player in game.players:
 
         # blit color
         pygame.draw.circle(screen, player.color, (20, i + 50), 10)
@@ -291,7 +294,7 @@ def main():
 
         # drawing to screen
         draw_board()
-        draw_players(game.players, myself)
+        draw_players(game, myself)
         if roll:
             if stop_roll:
                 roll = False
