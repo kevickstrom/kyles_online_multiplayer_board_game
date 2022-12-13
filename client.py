@@ -39,6 +39,8 @@ settingsimg = pygame.image.load(os.path.join('assets', "settings2.png"))
 exitimg = pygame.image.load(os.path.join('assets', "exit.png"))
 backimg = pygame.image.load(os.path.join('assets', "back.png"))
 githubimg = pygame.image.load(os.path.join('assets', "github.png"))
+notreadyimg = pygame.image.load(os.path.join('assets', "notready.png"))
+readyimg = pygame.image.load(os.path.join('assets', "ready.png"))
 
 
 def draw_board():
@@ -66,12 +68,13 @@ def draw_board():
     screen.blit(background, (0, 0))
 
 
-def draw_players(players: list[Player]):
+def draw_players(players: list[Player], myself: Player):
     """
     Draws everything left of the board
     """
     settings = button.Button(96, 16, settingsimg, 0.5)
     exit_button = button.Button(32, 16, exitimg, 0.5)
+    ready_button = button.Button(50, HEIGHT - 50, notreadyimg)
     border = pygame.Rect(0, 0, WIDTH - boardrect.width, exit_button.rect.height + 2)
     pygame.draw.rect(screen, (52, 78, 91), border)
     if settings.draw():
@@ -79,6 +82,13 @@ def draw_players(players: list[Player]):
     if exit_button.draw():
         pygame.quit()
         sys.exit()
+    if ready_button.draw():
+        if not myself.ready:
+            myself.ready = True
+            ready_button.changeimg(readyimg)
+        elif myself.ready:
+            myself.ready = False
+            ready_button.changeimg(notreadyimg)
 
     i = 0
     for player in players:
@@ -257,6 +267,7 @@ def main():
             myself = start_menu(playernum)
             n.update(myself)
 
+        # update game
         try:
             game = n.update(myself)
             for player in game.players:
@@ -267,6 +278,7 @@ def main():
             print("Couldn't get game")
             break
 
+        # event handling
         for event in pygame.event.get():
             if event.type == pygame.KEYDOWN:
                 if event.key == pygame.K_SPACE and not roll:
@@ -277,8 +289,9 @@ def main():
             if event.type == pygame.QUIT:
                 run = False
 
+        # drawing to screen
         draw_board()
-        draw_players(game.players)
+        draw_players(game.players, myself)
         if roll:
             if stop_roll:
                 roll = False

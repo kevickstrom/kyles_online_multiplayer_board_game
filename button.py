@@ -12,6 +12,7 @@ class Button:
     def __init__(self, x, y, image, scale=1):
         width = image.get_width()
         height = image.get_height()
+        self.scale = scale
         self.image = pygame.transform.smoothscale(image, (int(width * scale), int(height * scale)))
         self.rect = self.image.get_rect()
         self.rect.centerx = x
@@ -37,3 +38,8 @@ class Button:
         updates position
         """
         self.rect.topleft = (x, y)
+
+    def changeimg(self, img):
+        width = img.get_width()
+        height = img.get_height()
+        self.image = pygame.transform.smoothscale(img, (int(width * self.scale), int(height * self.scale)))

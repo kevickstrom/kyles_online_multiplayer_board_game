@@ -1,3 +1,6 @@
+# game class
+
+from properties import *
 from player import Player
 
 
@@ -8,18 +11,23 @@ class Game:
         self.players = []
         self.ready = False
         self.players = []
-        self.properties = []
+        self.props = PropertyMap()
 
     def play(self):
         """
         Starts the game if all 4 players press the ready button
         :return:
         """
+        allready = False
         for player in self.players:
             if player.ready:
-                pass
+                allready = True
             else:
-                pass
+                allready = False
+
+        if allready:
+            for player in self.players:
+                player.location = self.props.start
 
     def add_player(self, player):
         self.players.append(player)
