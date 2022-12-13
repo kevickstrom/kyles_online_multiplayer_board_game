@@ -64,13 +64,17 @@ def threaded_client(conn, p, gameId):
                         if game.players[i].id == data.id:
                             game.players[i] = data
 
-                    for player in game.players:
-                        if player.ready:
-                            allready = True
-                        else:
-                            allready = False
-                    if allready:
+                    if not game.started:
+                        for player in game.players:
+                            if player.ready:
+                                allready = True
+                            else:
+                                allready = False
+                                break
+                    if allready and not game.started:
                         game.ready = True
+                        game.start()
+                        print("ready gamers")
                     # send updated game
                     conn.sendall(pickle.dumps(game))
             else:
@@ -100,6 +104,6 @@ while True:
         p = 0
     else:
         # games[gameId].ready = True
-        p = len(games[gameId].players)
+        p += 1
 
     start_new_thread(threaded_client, (conn, p, gameId))

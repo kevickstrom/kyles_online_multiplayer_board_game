@@ -10,24 +10,24 @@ class Game:
         self.started = False
         self.players = []
         self.ready = False
-        self.players = []
         self.props = PropertyMap()
 
-    def play(self):
+    def start(self):
         """
         Starts the game if all 4 players press the ready button
         :return:
         """
-        allready = False
+        self.started = True
         for player in self.players:
-            if player.ready:
-                allready = True
-            else:
-                allready = False
+            player.location = self.props.start
 
-        if allready:
-            for player in self.players:
-                player.location = self.props.start
+
+    def play(self):
+        """
+        plays the game
+        :return:
+        """
+        pass
 
     def add_player(self, player):
         self.players.append(player)
