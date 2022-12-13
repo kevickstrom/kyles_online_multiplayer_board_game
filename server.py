@@ -68,6 +68,8 @@ def threaded_client(conn, p, gameId):
                             allready = True
                         else:
                             allready = False
+                    if allready:
+                        game.ready = True
                     # send updated game
                     conn.sendall(pickle.dumps(game))
             else:
