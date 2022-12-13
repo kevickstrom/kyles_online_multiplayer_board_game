@@ -15,7 +15,7 @@ try:
 except socket.error as e:
     str(e)
 
-s.listen(4)
+s.listen()
 print("Waiting for a connection, Server Started")
 
 connected = set()
@@ -24,6 +24,13 @@ idCount = 0
 
 
 def threaded_client(conn, p, gameId):
+    """
+    One thread per connection
+    :param conn: Socket connection
+    :param p: number representing the player
+    :param gameId: ID of the game the player is in
+    :return: None
+    """
     global idCount
     conn.send(str.encode(str(p)))
     selected = False
@@ -41,10 +48,10 @@ def threaded_client(conn, p, gameId):
         except:
             pass
 
-    reply = ""
     while True:
         try:
-            data = conn.recv(4096).decode()
+            # receive data from client
+            data = pickle.loads(conn.recv(2048 * 2))
 
             if gameId in games:
                 game = games[gameId]
@@ -52,14 +59,12 @@ def threaded_client(conn, p, gameId):
                 if not data:
                     break
                 else:
-                    # handle string data
-                    if data == "reset":
-                        pass
-                        # game.resetWent()
-                    elif data != "get":
-                        pass
-                        # game.play(p, data)
+                    for i in range(len(game.players)):
+                        # update player data
+                        if game.players[i].id == data.id:
+                            game.players[i] = data
 
+                    # send updated game
                     conn.sendall(pickle.dumps(game))
             else:
                 break

@@ -66,7 +66,7 @@ def draw_board():
     screen.blit(background, (0, 0))
 
 
-def draw_players(players):
+def draw_players(players: list[Player]):
     """
     Draws everything left of the board
     """
@@ -101,7 +101,7 @@ def draw_players(players):
         i += 100
 
 
-def roll_dice():
+def roll_dice() -> (int, int):
     """
     Blits the dice and returns their result
     """
@@ -125,7 +125,7 @@ def roll_dice():
     return result1 + result2
 
 
-def start_menu(player):
+def start_menu(playernum: int) -> Player:
     """
     Starting menu when the game is launched
     initializes and returns player - name, color
@@ -200,7 +200,7 @@ def start_menu(player):
 
         pygame.display.flip()
         clock.tick(30)
-    me = Player(player)
+    me = Player(playernum)
     me.name = user_text
     me.color = color_choices[choice]
     return me
@@ -208,15 +208,13 @@ def start_menu(player):
 
 def settings_menu():
     """
-    Settings menu, button on left side of the board
+    Settings menu with buttons
     """
-
 
     # buttons
     back_button = button.Button(WIDTH // 2, HEIGHT // 2 - 100, backimg, 1)
     exit_button = button.Button(WIDTH // 2, HEIGHT // 2, exitimg, 1)
     github = button.Button(WIDTH // 2, HEIGHT // 2 + 100, githubimg, 1)
-
 
     clock = pygame.time.Clock()
     menu = True
@@ -243,7 +241,7 @@ def main():
     Main game loop
     """
     n = Network()
-    player = int(n.getP())
+    playernum = int(n.getP())
     draw_board()
     clock = pygame.time.Clock()
     roll = False
@@ -256,10 +254,14 @@ def main():
         # start menu
         if firststart:
             firststart = False
-            n.update(start_menu(player))
+            myself = start_menu(playernum)
+            n.update(myself)
 
         try:
-            game = n.send("get")
+            game = n.update(myself)
+            for player in game.players:
+                if player.id == playernum:
+                    myself = player
         except:
             run = False
             print("Couldn't get game")

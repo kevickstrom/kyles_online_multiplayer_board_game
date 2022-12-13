@@ -2,6 +2,7 @@
 
 import socket
 import pickle
+from game import Game
 
 
 class Network:
@@ -16,20 +17,34 @@ class Network:
         return self.p
 
     def connect(self):
+        """
+        Initial connection
+        """
         try:
             self.client.connect(self.addr)
             return self.client.recv(2048).decode()
         except:
             pass
 
-    def send(self, data):
+    def send(self, data: str) -> Game:
+        """
+        Used to send string data over socket
+        Don't think this will be used anymore
+        :param data: string message
+        :return: Game object
+        """
         try:
             self.client.send(str.encode(data))
             return pickle.loads(self.client.recv(2048 * 2))
         except socket.error as e:
             print(e)
 
-    def update(self, data: object):
+    def update(self, data: object) -> Game:
+        """
+        Used to send object data over socket
+        :param data: Player object
+        :return: Game object
+        """
         try:
             self.client.send(pickle.dumps(data))
             return pickle.loads(self.client.recv(2048 * 2))
