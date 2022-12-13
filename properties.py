@@ -21,6 +21,9 @@ class Property:
         self.next = None
         self.back = None
 
+    def __repr__(self):
+        return repr(f"Property({self.id}, {self.name}, {self.color}, {self.price})")
+
     def add_house(self):
         pass
 
@@ -37,6 +40,7 @@ class Property:
 class PropertyMap:
     """
     Linked-list style inorder for each property on the board
+    Also has list of all properties in order of board appearance
     """
     def __init__(self):
         """
@@ -138,6 +142,10 @@ def main():
     """
     default = PropertyMap()
     print(default.inorder)
+    first = default.start
+    print(first)
+    print(f"next:{first.next}")
+    print(f"last:{first.back}")
 
 
 if __name__ == "__main__":

@@ -58,12 +58,13 @@ def threaded_client(conn, p, gameId):
                 if not data:
                     break
                 else:
+                    # update player data
                     allready = False
                     for i in range(len(game.players)):
-                        # update player data
                         if game.players[i].id == data.id:
                             game.players[i] = data
 
+                    # update game data
                     if not game.started:
                         for player in game.players:
                             if player.ready:
@@ -71,10 +72,11 @@ def threaded_client(conn, p, gameId):
                             else:
                                 allready = False
                                 break
-                    if allready and not game.started:
-                        game.ready = True
-                        game.start()
-                        print("ready gamers")
+                        if allready:
+                            game.ready = True
+                            game.start()
+                            print("ready gamers")
+
                     # send updated game
                     conn.sendall(pickle.dumps(game))
             else:
@@ -91,7 +93,7 @@ def threaded_client(conn, p, gameId):
     idCount -= 1
     conn.close()
 
-
+p = 0
 while True:
     conn, addr = s.accept()
     print("Connected to:", addr)

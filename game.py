@@ -19,8 +19,7 @@ class Game:
         """
         self.started = True
         for player in self.players:
-            player.location = self.props.start
-
+            player.location = self.props.start.id
 
     def play(self):
         """
