@@ -2,6 +2,7 @@
 
 from properties import *
 from player import Player
+import random
 
 
 class Game:
@@ -10,7 +11,8 @@ class Game:
         self.started = False
         self.players = []
         self.ready = False
-        self.props = PropertyMap()
+        self.props = [i for i in range(0, 32)]
+        self.turn = None
 
     def start(self):
         """
@@ -18,8 +20,17 @@ class Game:
         :return:
         """
         self.started = True
+        # sets player location to go using id 0
         for player in self.players:
-            player.location = self.props.start.id
+            player.location = self.props[0]
+
+        firstturn = random.randrange(0, len(self.players), 1)
+        self.turn = self.players[firstturn].id
+
+        self.players[firstturn].rolling = True
+        d1 = random.randrange(0, 6)
+        d2 = random.randrange(0, 6)
+        self.players[firstturn].lastroll = (d1, d2)
 
     def play(self):
         """

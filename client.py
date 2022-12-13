@@ -9,6 +9,7 @@ import pygame
 import button
 from player import Player
 from network import Network
+from properties import *
 
 # initialize screen
 pygame.init()
@@ -20,7 +21,7 @@ fullscreen = True
 pygame.display.set_caption("Monopoly but only Kyle can cheat")
 base_font = pygame.font.Font(None, 32)
 
-# load images
+
 # dice load
 faces = [pygame.image.load((os.path.join('dice-sheet', '1face.png'))),
          pygame.image.load((os.path.join('dice-sheet', '2face.png'))),
@@ -41,6 +42,29 @@ backimg = pygame.image.load(os.path.join('assets', "back.png"))
 githubimg = pygame.image.load(os.path.join('assets', "github.png"))
 notreadyimg = pygame.image.load(os.path.join('assets', "notready.png"))
 readyimg = pygame.image.load(os.path.join('assets', "ready.png"))
+
+# properties load
+properties = PropertyMap()
+propwidth = boardrect.width // 11
+propheight = propwidth * 2
+# assign property's player screen locations
+properties.inorder[0].spot1 = (WIDTH - (2 * propwidth) + 20, HEIGHT - 50)
+properties.inorder[0].spot2 = (WIDTH - (2 * propwidth) + 20, HEIGHT - 10)
+properties.inorder[0].spot3 = (WIDTH - (2 * propwidth) + 40, HEIGHT - 50)
+properties.inorder[0].spot4 = (WIDTH - (2 * propwidth) + 40, HEIGHT - 10)
+xshift1 = 2 * (propwidth // 3)
+xshift2 = 1 * (propwidth // 3)
+# bottom row
+for i in range(1, 8):
+    properties.inorder[i].spot1 = (WIDTH - (2 * propwidth) - i * xshift1, HEIGHT - propheight)
+    properties.inorder[i].spot2 = (WIDTH - (2 * propwidth) - i * xshift1, HEIGHT - propheight + 30)
+    properties.inorder[i].spot3 = (WIDTH - (2 * propwidth) - i * xshift2, HEIGHT - propheight)
+    properties.inorder[i].spot4 = (WIDTH - (2 * propwidth) - i * xshift2, HEIGHT - propheight + 30)
+# jail corner
+properties.inorder[8].spot1 = (WIDTH - (2 * propwidth) - 9 * xshift1, HEIGHT - propheight)
+properties.inorder[8].spot2 = (WIDTH - (2 * propwidth) - 9 * xshift1, HEIGHT - propheight + 30)
+properties.inorder[8].spot3 = (WIDTH - (2 * propwidth) - 9 * xshift2, HEIGHT - propheight)
+properties.inorder[8].spot4 = (WIDTH - (2 * propwidth) - 9 * xshift2, HEIGHT - propheight + 30)
 
 
 def draw_board():
@@ -68,7 +92,7 @@ def draw_board():
     screen.blit(background, (0, 0))
 
 
-def draw_players(game, myself: Player) -> Player:
+def draw_ui(game, myself: Player) -> Player:
     """
     Draws everything left of the board
     """
@@ -116,28 +140,48 @@ def draw_players(game, myself: Player) -> Player:
     return myself
 
 
-def roll_dice() -> (int, int):
+def draw_players(game):
     """
-    Blits the dice and returns their result
+    Draws the players on the board
     """
-    num1 = random.randrange(0, 6)
-    dice1 = faces[num1]
-    dice1rect = dice1.get_rect()
-    dice1rect.centerx = boardrect.centerx - 25
-    dice1rect.centery = boardrect.centery
-    screen.blit(dice1, dice1rect)
+    # pygame.draw.circle(screen, player.color, (20, i + 50), 10)
+    for player in game.players:
+        pygame.draw.circle(screen, player.color, properties.inorder[player.location].spot1, 10)
 
-    num2 = random.randrange(0, 6)
-    dice2 = faces[num2]
-    dice2rect = dice2.get_rect()
-    dice2rect.centerx = boardrect.centerx + 25
-    dice2rect.centery = boardrect.centery
-    screen.blit(dice2, dice2rect)
 
-    result1 = num1 + 1
-    result2 = num2 + 1
+def roll_dice(x=-1, y=-1):
+    """
+    Draws the dice
+    """
+    if x == -1:
+        num1 = random.randrange(0, 6)
+        dice1 = faces[num1]
+        dice1rect = dice1.get_rect()
+        dice1rect.centerx = boardrect.centerx - 25
+        dice1rect.centery = boardrect.centery
+        screen.blit(dice1, dice1rect)
 
-    return result1 + result2
+        num2 = random.randrange(0, 6)
+        dice2 = faces[num2]
+        dice2rect = dice2.get_rect()
+        dice2rect.centerx = boardrect.centerx + 25
+        dice2rect.centery = boardrect.centery
+        screen.blit(dice2, dice2rect)
+    else:
+        num1 = x
+        num2 = y
+        dice1 = faces[x]
+        dice2 = faces[y]
+        dice1rect = dice1.get_rect()
+        dice1rect.centerx = boardrect.centerx - 25
+        dice1rect.centery = boardrect.centery
+
+        dice2rect = dice2.get_rect()
+        dice2rect.centerx = boardrect.centerx + 25
+        dice2rect.centery = boardrect.centery
+
+        screen.blit(dice1, dice1rect)
+        screen.blit(dice2, dice2rect)
 
 
 def start_menu(playernum: int) -> Player:
@@ -286,23 +330,31 @@ def main():
         # event handling
         for event in pygame.event.get():
             if event.type == pygame.KEYDOWN:
-                if event.key == pygame.K_SPACE and not roll:
-                    roll = True
-                    stop_roll = False
-                elif event.key == pygame.K_SPACE and roll:
-                    stop_roll = True
+                if myself.rolling:
+                    if event.key == pygame.K_SPACE and not roll:
+                        roll_dice()
+                        roll = True
+                        stop_roll = False
+                    elif event.key == pygame.K_SPACE and roll:
+                        roll_dice(myself.lastroll[0], myself.lastroll[1])
+                        roll = False
+                        myself.rolling = False
+                        stop_roll = True
             if event.type == pygame.QUIT:
                 run = False
 
         # drawing to screen
         draw_board()
-        myself = draw_players(game, myself)
-        if roll:
-            if stop_roll:
-                roll = False
-                time.sleep(1)
-            else:
-                roll_result = roll_dice()
+        myself = draw_ui(game, myself)
+        # if roll:
+        #     if stop_roll:
+        #         roll = False
+        #         time.sleep(1)
+        #     else:
+        #         roll_result = roll_dice()
+
+        if game.started:
+            draw_players(game)
         pygame.display.flip()
         clock.tick(30)
 

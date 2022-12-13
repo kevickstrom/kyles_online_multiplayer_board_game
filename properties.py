@@ -16,8 +16,10 @@ class Property:
         self.hotels = 0
         self.hotel_price = None
         self.mortgaged = False
-        self.boardx = None  # holds the center x pos as it appears on the board
-        self.boardy = None  # holds the center y pos as it appears on the bard
+        self.spot1 = None  # holds (x,y) location of first available spot for the client to fill in
+        self.spot2 = None
+        self.spot2 = None
+        self.spot2 = None
         self.next = None
         self.back = None
 
