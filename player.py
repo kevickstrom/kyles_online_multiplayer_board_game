@@ -18,6 +18,7 @@ class Player:
         self.nextspot = None
         self.midloc = None
 
+        self.endturn = False
         self.rolling = False
         self.moving = 0  # 0 represents not moving. Any other number indicates moving
         self.lastroll = (0, 0)

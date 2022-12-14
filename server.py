@@ -76,6 +76,11 @@ def threaded_client(conn, p, gameId):
                             game.ready = True
                             game.start()
                             print("ready gamers")
+                    # game is started
+                    else:
+                        for player in game.players:
+                            if player.id == game.turn and player.endturn:
+                                game.play()
 
                     # send updated game
                     conn.sendall(pickle.dumps(game))

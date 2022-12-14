@@ -48,23 +48,53 @@ properties = PropertyMap()
 propwidth = boardrect.width // 11
 propheight = propwidth * 2
 # assign property's player screen locations
-# properties.inorder[0].spots.append((WIDTH - (2 * propwidth) + 20, HEIGHT - 50))
-# properties.inorder[0].spots.append((WIDTH - (2 * propwidth) + 20, HEIGHT - 10))
-# properties.inorder[0].spots.append((WIDTH - (2 * propwidth) + 40, HEIGHT - 50))
-# properties.inorder[0].spots.append((WIDTH - (2 * propwidth) + 40, HEIGHT - 10))
 xshift1 = 2 * (propwidth // 3)
 xshift2 = 1 * (propwidth // 3)
-# bottom row
+# bottom row including go
 for i in range(0, 8):
-    properties.inorder[i].spots.append((WIDTH - (2 * propwidth) - (i * propwidth) + xshift2, HEIGHT - propheight//2))
-    properties.inorder[i].spots.append((WIDTH - (2 * propwidth) - (i * propwidth) + xshift2, HEIGHT - propheight//2 + 30))
-    properties.inorder[i].spots.append((WIDTH - (2 * propwidth) - (i * propwidth) + xshift1, HEIGHT - propheight//2))
-    properties.inorder[i].spots.append((WIDTH - (2 * propwidth) - (i * propwidth) + xshift1, HEIGHT - propheight//2 + 30))
+    properties.inorder[i].spots.append(
+        (WIDTH - (2 * propwidth) - (i * propwidth) + xshift2, HEIGHT - propheight//2))
+    properties.inorder[i].spots.append(
+        (WIDTH - (2 * propwidth) - (i * propwidth) + xshift2, HEIGHT - propheight//2 + 30))
+    properties.inorder[i].spots.append(
+        (WIDTH - (2 * propwidth) - (i * propwidth) + xshift1, HEIGHT - propheight//2))
+    properties.inorder[i].spots.append(
+        (WIDTH - (2 * propwidth) - (i * propwidth) + xshift1, HEIGHT - propheight//2 + 30))
 # jail corner
 properties.inorder[8].spots.append((WIDTH - (2 * propwidth) - (9 * propwidth) + xshift2, HEIGHT - propheight + 30))
 properties.inorder[8].spots.append((WIDTH - (2 * propwidth) - (9 * propwidth) + xshift2, HEIGHT - propheight + 60))
 properties.inorder[8].spots.append((WIDTH - (2 * propwidth) - (9 * propwidth) + xshift1, HEIGHT - propheight + 30))
 properties.inorder[8].spots.append((WIDTH - (2 * propwidth) - (9 * propwidth) + xshift1, HEIGHT - propheight + 60))
+# left side including top left corner
+for i in range(9, 17):
+    properties.inorder[i].spots.append(
+        (WIDTH - (10 * propwidth) - 20, HEIGHT - propheight - (i * propwidth) - xshift1))
+    properties.inorder[i].spots.append(
+        (WIDTH - (10 * propwidth) + 20, HEIGHT - propheight - (i * propwidth) - xshift1))
+    properties.inorder[i].spots.append(
+        (WIDTH - (10 * propwidth) - 20,HEIGHT - propheight - (i * propwidth) - xshift2))
+    properties.inorder[i].spots.append(
+        (WIDTH - (10 * propwidth) + 20, HEIGHT - propheight - (i * propwidth) - xshift2))
+# top side including right corner
+for i in range(17, 25):
+    properties.inorder[i].spots.append(
+        (WIDTH - (9 * propwidth) + (i * propwidth) - xshift2, HEIGHT - (5 * propheight) - 20))
+    properties.inorder[i].spots.append(
+        (WIDTH - (9 * propwidth) + (i * propwidth) - xshift2, HEIGHT - (5 * propheight) + 20))
+    properties.inorder[i].spots.append(
+        (WIDTH - (9 * propwidth) + (i * propwidth) - xshift1, HEIGHT - (5 * propheight) - 20))
+    properties.inorder[i].spots.append(
+        (WIDTH - (9 * propwidth) + (i * propwidth) - xshift1, HEIGHT - (5 * propheight) + 20))
+# right side not including any corners
+for i in range(25, 32):
+    properties.inorder[i].spots.append(
+        (WIDTH - propwidth - 20, propheight + propwidth//2 + (i * propwidth) + xshift1))
+    properties.inorder[i].spots.append(
+        (WIDTH - propwidth + 20, propheight + propwidth//2 + (i * propwidth) + xshift1))
+    properties.inorder[i].spots.append(
+        (WIDTH - propwidth - 20, propheight + propwidth//2 + (i * propwidth) + xshift2))
+    properties.inorder[i].spots.append(
+        (WIDTH - propwidth + 20, propheight + propwidth//2 + (i * propwidth) + xshift2))
 
 
 def draw_board():
@@ -146,8 +176,6 @@ def draw_players(game):
     """
     # pygame.draw.circle(screen, player.color, (20, i + 50), 10)
     for player in game.players:
-        pygame.draw.circle(screen, player.color, properties.inorder[player.location].spots[0], 10)
-
         if player.moving > 0:
             player.nextspot = 0
             for otherplayer in game.players:
@@ -164,33 +192,61 @@ def draw_players(game):
             nextx = properties.inorder[player.midloc].spots[player.nextspot][0]
             nexty = properties.inorder[player.midloc].spots[player.nextspot][1]
 
-            if 0 <= player.location < 8:
+            if player.midloc == player.nextlocation:
+                player.moving = 0
+                player.location = player.nextlocation
+                pygame.draw.circle(screen, player.color,
+                                   properties.inorder[player.nextlocation].spots[player.nextspot], 10)
+                player.location = player.nextlocation
+                player.endturn = True
+            # player on bottom row
+            elif 0 <= player.location < 8:
                 x = lastx - (10 * player.moving)
                 y = properties.inorder[player.location].spots[player.spot][1]
                 howclose = properties.inorder[player.nextlocation].spots[0][0] - x
                 midclose = properties.inorder[player.midloc].spots[0][0] - x
-                if abs(howclose) < 10:
-                    player.moving = 0
-                    player.location = player.nextlocation
-                    pygame.draw.circle(screen, player.color,
-                                       properties.inorder[player.nextlocation].spots[player.newspot], 10)
-                    player.moving = 0
+                if abs(midclose) < 5:
+                    player.location = player.midloc
+                    player.moving = 1
                 else:
                     pygame.draw.circle(screen, player.color, (x, y), 10)
                     player.moving += 1
-                if abs(midclose) < 10:
-                    player.location = player.midloc
-                # player on bottom row
+            # player on left side
             elif 8 <= player.location < 16:
-                pass
-                # left side
+                x = properties.inorder[player.location].spots[player.spot][0]
+                y = lasty - (10 * player.moving)
+                howclose = properties.inorder[player.nextlocation].spots[0][1] - y
+                midclose = properties.inorder[player.midloc].spots[0][1] - y
+                if abs(midclose) < 5:
+                    player.location = player.midloc
+                else:
+                    pygame.draw.circle(screen, player.color, (x, y), 10)
+                    player.moving += 1
+            # top row
             elif 16 <= player.location < 24:
-                pass
-                # top row
+                x = lastx + (10 * player.moving)
+                y = properties.inorder[player.location].spots[player.spot][1]
+                howclose = properties.inorder[player.nextlocation].spots[0][0] - x
+                midclose = properties.inorder[player.midloc].spots[0][0] - x
+                if abs(midclose) < 5:
+                    player.location = player.midloc
+                    player.moving = 1
+                else:
+                    pygame.draw.circle(screen, player.color, (x, y), 10)
+                    player.moving += 1
+            # right side
             else:
-                pass
-                # right side
-
+                x = properties.inorder[player.location].spots[player.spot][0]
+                y = lasty + (10 * player.moving)
+                howclose = properties.inorder[player.nextlocation].spots[0][1] - y
+                midclose = properties.inorder[player.midloc].spots[0][1] - y
+                if abs(midclose) < 5:
+                    player.location = player.midloc
+                else:
+                    pygame.draw.circle(screen, player.color, (x, y), 10)
+                    player.moving += 1
+        else:
+            pygame.draw.circle(screen, player.color, properties.inorder[player.location].spots[player.spot], 10)
 
             # if nexty < lasty:
             #     # move left
