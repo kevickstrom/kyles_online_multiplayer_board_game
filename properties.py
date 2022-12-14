@@ -1,4 +1,4 @@
-# class for properties that can be bought and sold
+# class for all squares on the board
 
 class Property:
     """
@@ -51,7 +51,7 @@ class PropertyMap:
 
     def initmap(self):
         """
-        Adds all the properties to the inorder
+        Adds all the properties to the inorder list
         """
         go = Property(0, "Go", "Go", 0)
         brown1 = Property(1, "Brown 1", "brown", 100)
@@ -129,6 +129,7 @@ class PropertyMap:
             self.inorder[i].back = self.inorder[i - 1]
         self.inorder[0].back = self.inorder[-1]
 
+        # assign head of 'circular' ll
         self.start = self.inorder[0]
 
     def getinorder(self) -> list:

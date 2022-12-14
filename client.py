@@ -66,35 +66,41 @@ properties.inorder[8].spots.append((WIDTH - (2 * propwidth) - (9 * propwidth) + 
 properties.inorder[8].spots.append((WIDTH - (2 * propwidth) - (9 * propwidth) + xshift1, HEIGHT - propheight + 30))
 properties.inorder[8].spots.append((WIDTH - (2 * propwidth) - (9 * propwidth) + xshift1, HEIGHT - propheight + 60))
 # left side including top left corner
+inc = 0
 for i in range(9, 17):
     properties.inorder[i].spots.append(
-        (WIDTH - (10 * propwidth) - 20, HEIGHT - propheight - (i * propwidth) - xshift1))
+        (WIDTH - (10 * propwidth) - 20, HEIGHT - propheight - (inc * propwidth) - xshift1))
     properties.inorder[i].spots.append(
-        (WIDTH - (10 * propwidth) + 20, HEIGHT - propheight - (i * propwidth) - xshift1))
+        (WIDTH - (10 * propwidth) + 20, HEIGHT - propheight - (inc * propwidth) - xshift1))
     properties.inorder[i].spots.append(
-        (WIDTH - (10 * propwidth) - 20,HEIGHT - propheight - (i * propwidth) - xshift2))
+        (WIDTH - (10 * propwidth) - 20,HEIGHT - propheight - (inc * propwidth) - xshift2))
     properties.inorder[i].spots.append(
-        (WIDTH - (10 * propwidth) + 20, HEIGHT - propheight - (i * propwidth) - xshift2))
+        (WIDTH - (10 * propwidth) + 20, HEIGHT - propheight - (inc * propwidth) - xshift2))
+    inc += 1
 # top side including right corner
+inc = 0
 for i in range(17, 25):
     properties.inorder[i].spots.append(
-        (WIDTH - (9 * propwidth) + (i * propwidth) - xshift2, HEIGHT - (5 * propheight) - 20))
+        (WIDTH - (9 * propwidth) + (inc * propwidth) + xshift1, HEIGHT - (5 * propheight) - 20))
     properties.inorder[i].spots.append(
-        (WIDTH - (9 * propwidth) + (i * propwidth) - xshift2, HEIGHT - (5 * propheight) + 20))
+        (WIDTH - (9 * propwidth) + (inc * propwidth) + xshift1, HEIGHT - (5 * propheight) + 20))
     properties.inorder[i].spots.append(
-        (WIDTH - (9 * propwidth) + (i * propwidth) - xshift1, HEIGHT - (5 * propheight) - 20))
+        (WIDTH - (9 * propwidth) + (inc * propwidth) + xshift2, HEIGHT - (5 * propheight) - 20))
     properties.inorder[i].spots.append(
-        (WIDTH - (9 * propwidth) + (i * propwidth) - xshift1, HEIGHT - (5 * propheight) + 20))
+        (WIDTH - (9 * propwidth) + (inc * propwidth) + xshift2, HEIGHT - (5 * propheight) + 20))
+    inc += 1
 # right side not including any corners
+inc = 0
 for i in range(25, 32):
     properties.inorder[i].spots.append(
-        (WIDTH - propwidth - 20, propheight + propwidth//2 + (i * propwidth) + xshift1))
+        (WIDTH - propwidth - 20, propheight + propwidth//2 + (inc * propwidth) + xshift2))
     properties.inorder[i].spots.append(
-        (WIDTH - propwidth + 20, propheight + propwidth//2 + (i * propwidth) + xshift1))
+        (WIDTH - propwidth + 20, propheight + propwidth//2 + (inc * propwidth) + xshift2))
     properties.inorder[i].spots.append(
-        (WIDTH - propwidth - 20, propheight + propwidth//2 + (i * propwidth) + xshift2))
+        (WIDTH - propwidth - 20, propheight + propwidth//2 + (inc * propwidth) - xshift2))
     properties.inorder[i].spots.append(
-        (WIDTH - propwidth + 20, propheight + propwidth//2 + (i * propwidth) + xshift2))
+        (WIDTH - propwidth + 20, propheight + propwidth//2 + (inc * propwidth) - xshift2))
+    inc += 1
 
 
 def draw_board():
@@ -175,6 +181,7 @@ def draw_players(game):
     Draws the players on the board
     """
     # pygame.draw.circle(screen, player.color, (20, i + 50), 10)
+    global screen
     for player in game.players:
         if player.moving > 0:
             player.nextspot = 0
@@ -182,105 +189,65 @@ def draw_players(game):
                 if otherplayer.location == player.nextlocation and otherplayer.id != player.id:
                     player.nextspot = otherplayer.spot + 1
 
-            if player.location == 31:
-                player.midloc = 0
-            else:
-                player.midloc = player.location + 1
-
+            curr_square = player.location
+            next_square = player.nextlocation
             lastx = properties.inorder[player.location].spots[player.spot][0]
             lasty = properties.inorder[player.location].spots[player.spot][1]
-            nextx = properties.inorder[player.midloc].spots[player.nextspot][0]
-            nexty = properties.inorder[player.midloc].spots[player.nextspot][1]
+            finalx = properties.inorder[player.nextlocation].spots[player.nextspot][0]
+            finaly = properties.inorder[player.nextlocation].spots[player.nextspot][1]
+            nextxy = player.nextspot
+            color = player.color
+            readyfornext = True
+            move = True
+            clock = pygame.time.Clock()
+            drawing = True
+            while drawing:
+                for event in pygame.event.get():
+                    if event.type == pygame.QUIT:
+                        pygame.quit()
+                        sys.exit()
+                check = (abs(finalx - lastx) < 15) and (abs(finaly - lasty) < 15)
+                if curr_square == next_square and check:
+                    drawing = False
+                else:
+                    if readyfornext:
+                        move = True
+                        readyfornext = False
+                        if curr_square == 31:
+                            curr_square = 0
+                        else:
+                            curr_square += 1
+                    goto_square = curr_square
+                    if move:
+                        howclosex = properties.inorder[goto_square].spots[nextxy][0] - lastx
+                        howclosey = properties.inorder[goto_square].spots[nextxy][1] - lasty
+                        # need to move right
+                        if howclosex > 0:
+                            x = lastx + 10
+                        # need to move left
+                        else:
+                            x = lastx - 10
+                        # need to move up
+                        if howclosey < 0:
+                            y = lasty - 10
 
-            if player.midloc == player.nextlocation:
-                player.moving = 0
-                player.location = player.nextlocation
-                pygame.draw.circle(screen, player.color,
-                                   properties.inorder[player.nextlocation].spots[player.nextspot], 10)
-                player.location = player.nextlocation
-                player.endturn = True
-            # player on bottom row
-            elif 0 <= player.location < 8:
-                x = lastx - (10 * player.moving)
-                y = properties.inorder[player.location].spots[player.spot][1]
-                howclose = properties.inorder[player.nextlocation].spots[0][0] - x
-                midclose = properties.inorder[player.midloc].spots[0][0] - x
-                if abs(midclose) < 5:
-                    player.location = player.midloc
-                    player.moving = 1
-                else:
-                    pygame.draw.circle(screen, player.color, (x, y), 10)
-                    player.moving += 1
-            # player on left side
-            elif 8 <= player.location < 16:
-                x = properties.inorder[player.location].spots[player.spot][0]
-                y = lasty - (10 * player.moving)
-                howclose = properties.inorder[player.nextlocation].spots[0][1] - y
-                midclose = properties.inorder[player.midloc].spots[0][1] - y
-                if abs(midclose) < 5:
-                    player.location = player.midloc
-                else:
-                    pygame.draw.circle(screen, player.color, (x, y), 10)
-                    player.moving += 1
-            # top row
-            elif 16 <= player.location < 24:
-                x = lastx + (10 * player.moving)
-                y = properties.inorder[player.location].spots[player.spot][1]
-                howclose = properties.inorder[player.nextlocation].spots[0][0] - x
-                midclose = properties.inorder[player.midloc].spots[0][0] - x
-                if abs(midclose) < 5:
-                    player.location = player.midloc
-                    player.moving = 1
-                else:
-                    pygame.draw.circle(screen, player.color, (x, y), 10)
-                    player.moving += 1
-            # right side
-            else:
-                x = properties.inorder[player.location].spots[player.spot][0]
-                y = lasty + (10 * player.moving)
-                howclose = properties.inorder[player.nextlocation].spots[0][1] - y
-                midclose = properties.inorder[player.midloc].spots[0][1] - y
-                if abs(midclose) < 5:
-                    player.location = player.midloc
-                else:
-                    pygame.draw.circle(screen, player.color, (x, y), 10)
-                    player.moving += 1
+                        # need to move down
+                        else:
+                            y = lasty + 10
+                        if abs(howclosex) < 15 and abs(howclosey) < 15:
+                            move = False
+                            readyfornext = True
+                        else:
+                            pygame.draw.circle(screen, color, (x, y), 10)
+                            lastx = x
+                            lasty = y
+                pygame.display.flip()
+                clock.tick(30)
+            player.endturn = True
+            player.moving = 0
+            player.location = player.nextlocation
         else:
             pygame.draw.circle(screen, player.color, properties.inorder[player.location].spots[player.spot], 10)
-
-            # if nexty < lasty:
-            #     # move left
-            #     if nextx < lastx:
-            #         x = lastx - (10 * player.moving)
-            #         howclose = nextx - lastx
-            #         if abs(howclose) < 10:
-            #             if nexty - lasty > propwidth:
-            #                 pygame.draw.circle(screen, player.color, (x, lasty), 10)
-            #                 player.moving += 1
-            #             else:
-            #                 player.moving = 0
-            #                 player.location = player.nextlocation
-            #                 pygame.draw.circle(screen, player.color,
-            #                                    properties.inorder[player.nextlocation].spots[player.nextspot], 10)
-            #                 player.spot = player.nextspot
-            #         else:
-            #             pygame.draw.circle(screen, player.color, (x, lasty), 10)
-            #             player.moving += 1
-            #     # move right
-            #     elif nextx > lastx:
-            #         pass
-            # if properties.inorder[player.nextlocation].id <= 8:
-            #     x = lastx - (10 * player.moving)
-            #     y = properties.inorder[player.location].spots[player.spot][1]
-            #     howclose = properties.inorder[player.nextlocation].spots[0][0] - x
-            #     if abs(howclose) < 10:
-            #         player.moving = 0
-            #         player.location = player.nextlocation
-            #         pygame.draw.circle(screen, player.color, properties.inorder[player.nextlocation].spots[player.newspot], 10)
-            #         player.moving = 0
-            #     else:
-            #         pygame.draw.circle(screen, player.color, (x, y), 10)
-            #         player.moving += 1
 
 
 def roll_dice(x=-1, y=-1):
