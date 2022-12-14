@@ -116,14 +116,6 @@ def draw_board():
     boardrect.centery = background.get_rect().centery
     background.blit(board, boardrect)
 
-    # display text
-    font = pygame.font.Font(None, 36)
-    text = font.render("press space to roll dice", True, (10, 10, 10))
-    textpos = text.get_rect()
-    textpos.centerx = boardrect.centerx
-    textpos.centery = boardrect.centery - 100
-    background.blit(text, textpos)
-
     # blit to screen
     screen.blit(background, (0, 0))
 
@@ -176,14 +168,29 @@ def draw_ui(game, myself: Player) -> Player:
     return myself
 
 
-def draw_players(game):
+def draw_players(game, myself):
     """
     Draws the players on the board
     """
     # pygame.draw.circle(screen, player.color, (20, i + 50), 10)
     global screen
+    showroll = False
     for player in game.players:
-        if player.moving > 0:
+        if player.rolling and player.id == myself.id:
+            print("its my turn")
+            # display text
+            font = pygame.font.Font(None, 36)
+            text = font.render("press space to roll dice", True, (10, 10, 10))
+            textpos = text.get_rect()
+            textpos.centerx = boardrect.centerx
+            textpos.centery = boardrect.centery - 100
+            screen.blit(text, textpos)
+        elif player.rolling and player.showroll and player.id != myself.id:
+            showroll = True
+            roll_dice()
+        elif player.rolling and player.id != myself.id and showroll:
+            roll_dice(player.lastroll[0], player.lastroll[1])
+        if player.moving:
             player.nextspot = 0
             for otherplayer in game.players:
                 if otherplayer.location == player.nextlocation and otherplayer.id != player.id:
@@ -244,7 +251,7 @@ def draw_players(game):
                 pygame.display.flip()
                 clock.tick(30)
             player.endturn = True
-            player.moving = 0
+            player.moving = False
             player.location = player.nextlocation
         else:
             pygame.draw.circle(screen, player.color, properties.inorder[player.location].spots[player.spot], 10)
@@ -361,6 +368,8 @@ def start_menu(playernum: int) -> Player:
     me = Player(playernum)
     me.name = user_text
     me.color = color_choices[choice]
+    me.location = 0
+    me.spot = me.id
     return me
 
 
@@ -433,6 +442,7 @@ def main():
                 if myself.rolling:
                     if event.key == pygame.K_SPACE and not roll:
                         roll = True
+                        myself.showroll = True
                         stop_roll = False
                     elif event.key == pygame.K_SPACE and roll:
                         stop_roll = True
@@ -442,12 +452,12 @@ def main():
         # drawing to screen
         draw_board()
         myself = draw_ui(game, myself)
-        if game.started:
-            draw_players(game)
+        draw_players(game, myself)
         if roll:
             if stop_roll:
                 roll = False
                 myself.rolling = False
+                myself.showroll = False
                 roll_dice(myself.lastroll[0], myself.lastroll[1])
                 wait = True
                 myself.moving = 1

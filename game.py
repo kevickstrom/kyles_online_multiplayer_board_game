@@ -21,15 +21,10 @@ class Game:
         :return:
         """
         self.started = True
-        # sets player location to go using id 0
-        i = 0
-        for player in self.players:
-            player.location = self.props[0]
-            player.spot = i
-            i += 1
 
-        firstturn = random.randrange(0, len(self.players), 1)
+        firstturn = random.randrange(0, len(self.players))
         self.turn = self.players[firstturn].id
+        print(f"first turn: {self.players[firstturn].color}")
 
         self.endturn = False
         self.players[firstturn].rolling = True
@@ -49,6 +44,7 @@ class Game:
         else:
             self.turn += 1
 
+        print(f"turn: {self.players[self.turn].color}")
         self.players[self.turn].rolling = True
         self.players[self.turn].endturn = False
         d1 = random.randrange(0, 6)

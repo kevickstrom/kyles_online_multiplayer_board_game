@@ -16,15 +16,9 @@ class Player:
         self.spot = None
         self.nextlocation = None  # id of the next location
         self.nextspot = None
-        self.midloc = None
 
         self.endturn = False
         self.rolling = False
-        self.moving = 0  # 0 represents not moving. Any other number indicates moving
+        self.showroll = False
+        self.moving = False
         self.lastroll = (0, 0)
-
-    def move(self, location):
-        """
-        Moves the player to next location
-        """
-        pass
