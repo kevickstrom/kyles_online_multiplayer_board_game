@@ -73,7 +73,7 @@ for i in range(9, 17):
     properties.inorder[i].spots.append(
         (WIDTH - (10 * propwidth) + 20, HEIGHT - propheight - (inc * propwidth) - xshift1))
     properties.inorder[i].spots.append(
-        (WIDTH - (10 * propwidth) - 20,HEIGHT - propheight - (inc * propwidth) - xshift2))
+        (WIDTH - (10 * propwidth) - 20, HEIGHT - propheight - (inc * propwidth) - xshift2))
     properties.inorder[i].spots.append(
         (WIDTH - (10 * propwidth) + 20, HEIGHT - propheight - (inc * propwidth) - xshift2))
     inc += 1
@@ -164,6 +164,8 @@ def draw_ui(game, myself: Player) -> Player:
         player_moneyrect.centery = player_moneyrect.height + player_namerect.centery
         screen.blit(player_money, (40, player_moneyrect.centery))
         i += 100
+        # if game.turn is not None:
+        #     print(f"{game.players[game.turn].color} is rolling? {game.players[game.turn].rolling}")
 
     return myself
 
@@ -176,9 +178,9 @@ def draw_players(game, myself):
     global screen
     showroll = False
     for player in game.players:
-        print(myself.rolling)
+        # print(myself.rolling)
         if player.rolling and player.id == myself.id:
-            print("its my turn")
+            # print("its my turn")
             # display text
             font = pygame.font.Font(None, 36)
             text = font.render("press space to roll dice", True, (10, 10, 10))
@@ -437,6 +439,11 @@ def main():
             run = False
             print("Couldn't get game")
             break
+        if game.turn is not None:
+            if not myself.endturn and game.players[game.turn].id == myself.id:
+                myself.rolling = True
+            # print(f"{game.turn} is color {game.players[game.turn].color}")
+            # print(myself.rolling)
 
         # event handling
         for event in pygame.event.get():

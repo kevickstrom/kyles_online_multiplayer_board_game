@@ -23,14 +23,17 @@ class Game:
 
         firstturn = random.randrange(0, len(self.players))
         self.turn = self.players[firstturn].id
-        # print(f"first turn: {self.players[firstturn].color}, id {self.players[self.turn].id}")
-
+        print(f"first turn: {self.players[firstturn].color}, id {self.players[self.turn].id}")
+        print(self.players[self.turn].rolling)
         self.players[self.turn].rolling = True
+        print(self.players[self.turn].rolling)
         self.players[self.turn].endturn = False
         d1 = random.randrange(0, 6)
         d2 = random.randrange(0, 6)
         self.players[self.turn].lastroll = (d1, d2)
         self.players[self.turn].nextlocation = self.players[firstturn].location + d1 + d2 + 2
+        print(f"{self.players[self.turn].color} -> {self.players[self.turn].nextlocation}")
+        print(f"{self.players[self.turn].color} -> {self.players[self.turn].spot}")
 
     def play(self):
         """
@@ -44,6 +47,7 @@ class Game:
 
         print(f"turn: {self.players[self.turn].color}, id {self.players[self.turn].id}")
         self.players[self.turn].rolling = True
+        print(f"{self.players[self.turn].id} is rolling: {self.players[self.turn].rolling}")
         self.players[self.turn].endturn = False
         d1 = random.randrange(0, 6)
         d2 = random.randrange(0, 6)
@@ -52,6 +56,9 @@ class Game:
         if nextloc > 31:
             nextloc = nextloc - 32
         self.players[self.turn].nextlocation = nextloc
+        print(f"{self.players[self.turn].color} -> {self.players[self.turn].nextlocation}")
+        print(f"{self.players[self.turn].color} @spot {self.players[self.turn].spot}")
+        self.players[self.turn].nextspot = 0
 
     def add_player(self, player):
         self.players.append(player)

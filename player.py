@@ -13,9 +13,9 @@ class Player:
         self.ready = False
 
         self.location = None  # id of the current location
-        self.spot = None
+        self.spot = 0
         self.nextlocation = None  # id of the next location
-        self.nextspot = None
+        self.nextspot = 0
 
         self.endturn = False
         self.rolling = False

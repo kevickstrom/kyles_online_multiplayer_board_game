@@ -35,7 +35,7 @@ class Network:
         """
         try:
             self.client.send(str.encode(data))
-            return pickle.loads(self.client.recv(2048 * 2))
+            return pickle.loads(self.client.recv(2048 * 4))
         except socket.error as e:
             print(e)
 
@@ -47,6 +47,6 @@ class Network:
         """
         try:
             self.client.send(pickle.dumps(data))
-            return pickle.loads(self.client.recv(2048 * 2))
+            return pickle.loads(self.client.recv(2048 * 4))
         except socket.error as e:
             print(e)

@@ -36,7 +36,7 @@ def threaded_client(conn, p, gameId):
     while not selected:
         # receive filled out player class
         try:
-            player = pickle.loads(conn.recv(2048 * 2))
+            player = pickle.loads(conn.recv(2048 * 4))
             if gameId in games:
                 game = games[gameId]
 
@@ -50,7 +50,7 @@ def threaded_client(conn, p, gameId):
     while True:
         try:
             # receive data from client
-            data = pickle.loads(conn.recv(2048 * 2))
+            data = pickle.loads(conn.recv(2048 * 4))
 
             if gameId in games:
                 game = games[gameId]
@@ -63,6 +63,7 @@ def threaded_client(conn, p, gameId):
                     for i in range(len(game.players)):
                         if game.players[i].id == data.id:
                             game.players[i] = data
+                            break
 
                     # update game data
                     if not game.started:
@@ -76,12 +77,14 @@ def threaded_client(conn, p, gameId):
                             game.ready = True
                             game.start()
                             print("ready gamers")
+                            print(f"{game.players[game.turn].color} is rolling? {game.players[game.turn].rolling}")
                     # game is started
                     else:
                         for player in game.players:
                             if player.id == game.turn and player.endturn:
                                 game.play()
-
+                            # print(f"{game.players[game.turn].color} is rolling? {game.players[game.turn].rolling}")
+                            # print(f"{player.color} is rolling? {player.rolling}")
                     # send updated game
                     conn.sendall(pickle.dumps(game))
             else:
@@ -97,6 +100,7 @@ def threaded_client(conn, p, gameId):
         pass
     idCount -= 1
     conn.close()
+
 
 p = 0
 while True:
