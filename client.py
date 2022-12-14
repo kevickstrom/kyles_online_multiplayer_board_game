@@ -176,6 +176,7 @@ def draw_players(game, myself):
     global screen
     showroll = False
     for player in game.players:
+        print(myself.rolling)
         if player.rolling and player.id == myself.id:
             print("its my turn")
             # display text
@@ -195,7 +196,6 @@ def draw_players(game, myself):
             for otherplayer in game.players:
                 if otherplayer.location == player.nextlocation and otherplayer.id != player.id:
                     player.nextspot = otherplayer.spot + 1
-
             curr_square = player.location
             next_square = player.nextlocation
             lastx = properties.inorder[player.location].spots[player.spot][0]
@@ -253,6 +253,7 @@ def draw_players(game, myself):
             player.endturn = True
             player.moving = False
             player.location = player.nextlocation
+            player.spot = player.nextspot
         else:
             pygame.draw.circle(screen, player.color, properties.inorder[player.location].spots[player.spot], 10)
 
@@ -370,6 +371,7 @@ def start_menu(playernum: int) -> Player:
     me.color = color_choices[choice]
     me.location = 0
     me.spot = me.id
+    print(f"my id is {me.id}")
     return me
 
 
@@ -460,7 +462,7 @@ def main():
                 myself.showroll = False
                 roll_dice(myself.lastroll[0], myself.lastroll[1])
                 wait = True
-                myself.moving = 1
+                myself.moving = True
             else:
                 roll_dice()
 

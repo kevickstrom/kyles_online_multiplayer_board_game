@@ -13,7 +13,6 @@ class Game:
         self.ready = False
         self.props = [i for i in range(0, 32)]
         self.turn = None
-        self.endturn = False
 
     def start(self):
         """
@@ -24,15 +23,14 @@ class Game:
 
         firstturn = random.randrange(0, len(self.players))
         self.turn = self.players[firstturn].id
-        print(f"first turn: {self.players[firstturn].color}")
+        # print(f"first turn: {self.players[firstturn].color}, id {self.players[self.turn].id}")
 
-        self.endturn = False
-        self.players[firstturn].rolling = True
-        self.players[firstturn].endturn = False
+        self.players[self.turn].rolling = True
+        self.players[self.turn].endturn = False
         d1 = random.randrange(0, 6)
         d2 = random.randrange(0, 6)
-        self.players[firstturn].lastroll = (d1, d2)
-        self.players[firstturn].nextlocation = self.players[firstturn].location + d1 + d2 + 2
+        self.players[self.turn].lastroll = (d1, d2)
+        self.players[self.turn].nextlocation = self.players[firstturn].location + d1 + d2 + 2
 
     def play(self):
         """
@@ -44,7 +42,7 @@ class Game:
         else:
             self.turn += 1
 
-        print(f"turn: {self.players[self.turn].color}")
+        print(f"turn: {self.players[self.turn].color}, id {self.players[self.turn].id}")
         self.players[self.turn].rolling = True
         self.players[self.turn].endturn = False
         d1 = random.randrange(0, 6)
