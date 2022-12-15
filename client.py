@@ -249,10 +249,10 @@ def draw_players(game, myself):
                             lasty = y
                 pygame.display.flip()
                 clock.tick(30)
-            # player.endturn = True
-            # player.moving = False
-            # player.location = player.nextlocation
-            # player.spot = player.nextspot
+            player.endturn = True
+            player.moving = False
+            player.location = player.nextlocation
+            player.spot = player.nextspot
         else:
             pygame.draw.circle(screen, player.color, properties.inorder[player.location].spots[player.spot], 10)
 
