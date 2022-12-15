@@ -80,8 +80,11 @@ def threaded_client(conn, p, gameId):
                             print(f"{game.players[game.turn].color} is rolling? {game.players[game.turn].rolling}")
                     # game is started
                     else:
+                        if not game.endturn and game.players[game.turn].endturn:
+                            game.endturn = True
                         for player in game.players:
-                            if player.id == game.turn and player.endturn:
+                            player.endturn = False
+                            if player.id == game.turn and game.endturn:
                                 game.play()
                             # print(f"{game.players[game.turn].color} is rolling? {game.players[game.turn].rolling}")
                             # print(f"{player.color} is rolling? {player.rolling}")

@@ -177,9 +177,9 @@ def draw_players(game, myself):
     # pygame.draw.circle(screen, player.color, (20, i + 50), 10)
     global screen
     showroll = False
-    for player in game.players:
-        # print(myself.rolling)
-        if player.rolling and player.id == myself.id:
+    if game.started:
+        print(f"turn: {game.players[game.turn].color}")
+        if game.rolling and game.turn == myself.id:
             # print("its my turn")
             # display text
             font = pygame.font.Font(None, 36)
@@ -188,22 +188,25 @@ def draw_players(game, myself):
             textpos.centerx = boardrect.centerx
             textpos.centery = boardrect.centery - 100
             screen.blit(text, textpos)
-        elif player.rolling and player.showroll and player.id != myself.id:
+    for player in game.players:
+        # print(myself.rolling)
+        if player.rolling and player.showroll and player.id != myself.id:
             showroll = True
             roll_dice()
         elif player.rolling and player.id != myself.id and showroll:
-            roll_dice(player.lastroll[0], player.lastroll[1])
+            roll_dice(game.lastroll[0], game.lastroll[1])
+            time.sleep(1)
         if player.moving:
             player.nextspot = 0
             for otherplayer in game.players:
                 if otherplayer.location == player.nextlocation and otherplayer.id != player.id:
                     player.nextspot = otherplayer.spot + 1
             curr_square = player.location
-            next_square = player.nextlocation
+            next_square = game.goto_next
             lastx = properties.inorder[player.location].spots[player.spot][0]
             lasty = properties.inorder[player.location].spots[player.spot][1]
-            finalx = properties.inorder[player.nextlocation].spots[player.nextspot][0]
-            finaly = properties.inorder[player.nextlocation].spots[player.nextspot][1]
+            finalx = properties.inorder[game.goto_next].spots[player.nextspot][0]
+            finaly = properties.inorder[game.goto_next].spots[player.nextspot][1]
             nextxy = player.nextspot
             color = player.color
             readyfornext = True
@@ -440,8 +443,9 @@ def main():
             print("Couldn't get game")
             break
         if game.turn is not None:
-            if not myself.endturn and game.players[game.turn].id == myself.id:
+            if game.rolling and game.turn == myself.id:
                 myself.rolling = True
+                myself.nextlocation = game.goto_next
             # print(f"{game.turn} is color {game.players[game.turn].color}")
             # print(myself.rolling)
 
@@ -467,7 +471,7 @@ def main():
                 roll = False
                 myself.rolling = False
                 myself.showroll = False
-                roll_dice(myself.lastroll[0], myself.lastroll[1])
+                roll_dice(game.lastroll[0], game.lastroll[1])
                 wait = True
                 myself.moving = True
             else:
