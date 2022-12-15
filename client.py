@@ -164,8 +164,6 @@ def draw_ui(game, myself: Player) -> Player:
         player_moneyrect.centery = player_moneyrect.height + player_namerect.centery
         screen.blit(player_money, (40, player_moneyrect.centery))
         i += 100
-        # if game.turn is not None:
-        #     print(f"{game.players[game.turn].color} is rolling? {game.players[game.turn].rolling}")
 
     return myself
 
@@ -178,10 +176,7 @@ def draw_players(game, myself):
     global screen
     showroll = False
     if game.started:
-        print(f"turn: {game.players[game.turn].color}")
         if game.rolling and game.turn == myself.id:
-            # print("its my turn")
-            # display text
             font = pygame.font.Font(None, 36)
             text = font.render("press space to roll dice", True, (10, 10, 10))
             textpos = text.get_rect()
@@ -189,7 +184,6 @@ def draw_players(game, myself):
             textpos.centery = boardrect.centery - 100
             screen.blit(text, textpos)
     for player in game.players:
-        # print(myself.rolling)
         if player.rolling and player.showroll and player.id != myself.id:
             showroll = True
             roll_dice()
@@ -255,10 +249,10 @@ def draw_players(game, myself):
                             lasty = y
                 pygame.display.flip()
                 clock.tick(30)
-            player.endturn = True
-            player.moving = False
-            player.location = player.nextlocation
-            player.spot = player.nextspot
+            # player.endturn = True
+            # player.moving = False
+            # player.location = player.nextlocation
+            # player.spot = player.nextspot
         else:
             pygame.draw.circle(screen, player.color, properties.inorder[player.location].spots[player.spot], 10)
 
@@ -443,11 +437,10 @@ def main():
             print("Couldn't get game")
             break
         if game.turn is not None:
-            if game.rolling and game.turn == myself.id:
+            if not myself.rolling and game.turn == myself.id:
                 myself.rolling = True
                 myself.nextlocation = game.goto_next
-            # print(f"{game.turn} is color {game.players[game.turn].color}")
-            # print(myself.rolling)
+
 
         # event handling
         for event in pygame.event.get():
