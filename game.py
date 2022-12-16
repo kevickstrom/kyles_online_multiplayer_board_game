@@ -55,6 +55,7 @@ class Game:
         nextloc = self.players[self.turn].location + d1 + d2 + 2
         if nextloc > 31:
             nextloc = nextloc - 32
+            # self.players[self.turn]._money += 200
         self.goto_next = nextloc
 
     def add_player(self, player):

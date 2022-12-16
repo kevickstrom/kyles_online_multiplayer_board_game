@@ -31,7 +31,7 @@ faces = [pygame.image.load((os.path.join('dice-sheet', '1face.png'))),
          pygame.image.load((os.path.join('dice-sheet', '6face.png')))]
 
 # game board
-board = pygame.image.load(os.path.join('assets', "board.png"))
+board = pygame.image.load(os.path.join('assets', "boardwprice.png"))
 board = pygame.transform.smoothscale(board, (HEIGHT, HEIGHT))
 boardrect = board.get_rect()
 
@@ -42,6 +42,8 @@ backimg = pygame.image.load(os.path.join('assets', "back.png"))
 githubimg = pygame.image.load(os.path.join('assets', "github.png"))
 notreadyimg = pygame.image.load(os.path.join('assets', "notready.png"))
 readyimg = pygame.image.load(os.path.join('assets', "ready.png"))
+endturnimg = pygame.image.load(os.path.join('assets', "endturn.png"))
+notendturnimg = pygame.image.load(os.path.join('assets', "notendturn.png"))
 
 # properties load
 properties = PropertyMap()
@@ -60,6 +62,8 @@ for i in range(0, 8):
         (WIDTH - (2 * propwidth) - (i * propwidth) + xshift1, HEIGHT - propheight//2))
     properties.inorder[i].spots.append(
         (WIDTH - (2 * propwidth) - (i * propwidth) + xshift1, HEIGHT - propheight//2 + 30))
+    if i != 0 and i != 4:
+        properties.inorder[i].price_pos = (WIDTH - (3 * propwidth)//2 - (i * propwidth), HEIGHT - propheight//6)
 # jail corner
 properties.inorder[8].spots.append((WIDTH - (2 * propwidth) - (9 * propwidth) + xshift2, HEIGHT - propheight + 30))
 properties.inorder[8].spots.append((WIDTH - (2 * propwidth) - (9 * propwidth) + xshift2, HEIGHT - propheight + 60))
@@ -76,6 +80,9 @@ for i in range(9, 17):
         (WIDTH - (10 * propwidth) - 20, HEIGHT - propheight - (inc * propwidth) - xshift2))
     properties.inorder[i].spots.append(
         (WIDTH - (10 * propwidth) + 20, HEIGHT - propheight - (inc * propwidth) - xshift2))
+    if i != 12 and i != 14 and i != 16:
+        properties.inorder[i].price_pos = (WIDTH - (11 * propwidth) + propheight//2,
+                                           HEIGHT - propheight - (inc * propwidth) - propwidth//4)
     inc += 1
 # top side including right corner
 inc = 0
@@ -88,6 +95,9 @@ for i in range(17, 25):
         (WIDTH - (9 * propwidth) + (inc * propwidth) + xshift2, HEIGHT - (5 * propheight) - 20))
     properties.inorder[i].spots.append(
         (WIDTH - (9 * propwidth) + (inc * propwidth) + xshift2, HEIGHT - (5 * propheight) + 20))
+    if i != 18 and i != 20 and i != 24:
+        properties.inorder[i].price_pos = (WIDTH - (9 * propwidth) + (inc * propwidth) + propwidth//2,
+                                           HEIGHT - (5 * propheight) + propheight//8)
     inc += 1
 # right side not including any corners
 inc = 0
@@ -100,6 +110,9 @@ for i in range(25, 32):
         (WIDTH - propwidth - 20, propheight + propwidth//2 + (inc * propwidth) - xshift2))
     properties.inorder[i].spots.append(
         (WIDTH - propwidth + 20, propheight + propwidth//2 + (inc * propwidth) - xshift2))
+    if i != 25 and i != 28:
+        properties.inorder[i].price_pos = (WIDTH - propheight//2,
+                                           propheight + propwidth//2 + (inc * propwidth) + propwidth//3)
     inc += 1
 
 
@@ -118,6 +131,14 @@ def draw_board():
 
     # blit to screen
     screen.blit(background, (0, 0))
+    for property in properties.inorder:
+        if property.price_pos:
+            font = pygame.font.Font(None, 36)
+            text = font.render(f"{property.rent}", True, (10, 10, 10))
+            textpos = text.get_rect()
+            textpos.centerx = property.price_pos[0]
+            textpos.centery = property.price_pos[1]
+            screen.blit(text, textpos)
 
 
 def draw_ui(game, myself: Player) -> Player:
@@ -128,6 +149,8 @@ def draw_ui(game, myself: Player) -> Player:
     exit_button = button.Button(32, 16, exitimg, 0.5)
     notready_button = button.Button(boardrect.left - 96, HEIGHT - 50, notreadyimg)
     ready_button = button.Button(boardrect.left - 96, HEIGHT - 50, readyimg)
+    # endturn = button.Button(boardrect.centerx, (9 * propwidth) - 64, endturnimg)
+    # notendturn = button.Button(boardrect.left - 96, HEIGHT - 50, notendturnimg)
     border = pygame.Rect(0, 0, WIDTH - boardrect.width, exit_button.rect.height + 2)
     pygame.draw.rect(screen, (52, 78, 91), border)
     if settings.draw():
@@ -144,6 +167,13 @@ def draw_ui(game, myself: Player) -> Player:
             if ready_button.draw():
                 myself.ready = False
                 time.sleep(0.05)
+    # if game.started:
+    #     if game.turn == myself.id:
+    #         if endturn.draw():
+    #             myself.endturn = True
+    #     else:
+    #         if notendturn.draw():
+    #             pass
 
     i = 0
     for player in game.players:
@@ -172,7 +202,6 @@ def draw_players(game, myself):
     """
     Draws the players on the board
     """
-    # pygame.draw.circle(screen, player.color, (20, i + 50), 10)
     global screen
     showroll = False
     wait = False
@@ -251,6 +280,8 @@ def draw_players(game, myself):
                             lasty = y
                 pygame.display.flip()
                 clock.tick(30)
+            # note that each client can't actually change instance attributes of other players
+            # ths is just used client side to facilitate correct animations
             player.rolling = False
             player.endturn = True
             player.moving = False

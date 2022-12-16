@@ -83,6 +83,10 @@ def threaded_client(conn, p, gameId):
                             game.endturn = True
                         for player in game.players:
                             player.endturn = False
+                            if game.turn == player.id and not player.rolling:
+                                if game.goto_next < 12 and player.location > 12 and not player.endturn:
+                                    game.players[game.turn]._money += 200
+
                             if player.id == game.turn and game.endturn:
                                 game.play()
                     # send updated game

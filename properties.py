@@ -9,6 +9,8 @@ class Property:
         self.name = name
         self.color = color
         self.price = price
+        self.rent = self.price
+        self.price_pos = None
         self.image = None
         self.monopoly = False
         self.houses = 0
