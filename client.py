@@ -175,6 +175,7 @@ def draw_players(game, myself):
     # pygame.draw.circle(screen, player.color, (20, i + 50), 10)
     global screen
     showroll = False
+    wait = False
     if game.started:
         if game.rolling and game.turn == myself.id:
             font = pygame.font.Font(None, 36)
@@ -189,7 +190,8 @@ def draw_players(game, myself):
             roll_dice()
         elif player.rolling and player.id != myself.id and showroll:
             roll_dice(game.lastroll[0], game.lastroll[1])
-            time.sleep(1)
+            wait = True
+            showroll = False
         if player.moving:
             player.nextspot = 0
             for otherplayer in game.players:
@@ -249,10 +251,14 @@ def draw_players(game, myself):
                             lasty = y
                 pygame.display.flip()
                 clock.tick(30)
+            player.rolling = False
             player.endturn = True
             player.moving = False
             player.location = player.nextlocation
             player.spot = player.nextspot
+            if wait:
+                time.sleep(1)
+                wait = not wait
         else:
             pygame.draw.circle(screen, player.color, properties.inorder[player.location].spots[player.spot], 10)
 
@@ -437,10 +443,9 @@ def main():
             print("Couldn't get game")
             break
         if game.turn is not None:
-            if not myself.rolling and game.turn == myself.id:
+            if not myself.rolling and game.turn == myself.id and not game.endturn:
                 myself.rolling = True
                 myself.nextlocation = game.goto_next
-
 
         # event handling
         for event in pygame.event.get():
