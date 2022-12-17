@@ -117,7 +117,7 @@ for i in range(25, 32):
     inc += 1
 
 
-def draw_board(game=None):
+def draw_board(game=None) -> None:
     """
     Draws the board
     """
@@ -191,13 +191,12 @@ def draw_ui(game, myself: Player) -> Player:
     return myself
 
 
-def draw_players(game, myself):
+def draw_players(game, myself: Player) -> None:
     """
     Draws the players on the board
     """
     global screen
     showroll = False
-    wait = False
     if game.started:
         if game.rolling and game.turn == myself.id:
             font = pygame.font.Font(None, 36)
@@ -212,7 +211,6 @@ def draw_players(game, myself):
             roll_dice()
         elif player.rolling and player.id != myself.id and showroll:
             roll_dice(game.lastroll[0], game.lastroll[1])
-            wait = True
             showroll = False
         if player.moving:
             player.nextspot = 0
@@ -271,6 +269,9 @@ def draw_players(game, myself):
                             pygame.draw.circle(screen, color, (x, y), 10)
                             lastx = x
                             lasty = y
+                    draw_turn(game, player)
+                    if not player.rolling:
+                        roll_dice(game.lastroll[0], game.lastroll[1])
                 pygame.display.flip()
                 clock.tick(30)
             # note that each client can't actually change instance attributes of other players
@@ -279,14 +280,11 @@ def draw_players(game, myself):
             player.moving = False
             player.location = player.nextlocation
             player.spot = player.nextspot
-            if wait:
-                time.sleep(1)
-                wait = not wait
         else:
             pygame.draw.circle(screen, player.color, properties.inorder[player.location].spots[player.spot], 10)
 
 
-def turn(game, myself):
+def draw_turn(game, myself: Player) -> None:
     """
     Buttons on the board to end turn and buy property
     """
@@ -308,7 +306,7 @@ def turn(game, myself):
                 pass
 
 
-def roll_dice(x=-1, y=-1):
+def roll_dice(x: int = -1, y: int = -1) -> None:
     """
     Draws the dice
     """
@@ -425,7 +423,7 @@ def start_menu(playernum: int) -> Player:
     return me
 
 
-def settings_menu():
+def settings_menu() -> None:
     """
     Settings menu with buttons
     """
@@ -469,7 +467,7 @@ def main():
     # event loop
     run = True
     firststart = True
-    wait = False
+
     while run:
         # start menu
         if firststart:
@@ -505,22 +503,18 @@ def main():
         draw_board(game)
         myself = draw_ui(game, myself)
         draw_players(game, myself)
-        turn(game, myself)
+        draw_turn(game, myself)
         if roll:
             if stop_roll:
                 roll = False
                 myself.rolling = False
                 myself.showroll = False
                 roll_dice(game.lastroll[0], game.lastroll[1])
-                wait = True
                 myself.moving = True
             else:
                 roll_dice()
 
         pygame.display.flip()
-        if wait:
-            time.sleep(1)
-            wait = not wait
         clock.tick(30)
 
 
