@@ -76,19 +76,32 @@ def threaded_client(conn, p, gameId):
                         if allready:
                             game.ready = True
                             game.start()
+                            game.players[game.turn].endturn = False
+                            game.players[game.turn].rolling = True
+                            game.players[game.turn].nextlocation = game.goto_next
                             print("ready gamers")
                     # game is started
                     else:
-                        if not game.endturn and game.players[game.turn].endturn:
-                            game.endturn = True
+                        if game.players[game.turn].endturn and game.endturn:
+                            game.play()
+                            game.players[game.turn].endturn = False
+                            game.players[game.turn].rolling = True
+                            game.players[game.turn].nextlocation = game.goto_next
+                            game.players[game.turn].buy = False
+                            game.players[game.turn].bought = False
                         for player in game.players:
-                            player.endturn = False
                             if game.turn == player.id and not player.rolling:
+                                if player.location == player.nextlocation:
+                                    game.rolling = False
+                                if player.endturn:
+                                    game.endturn = True
                                 if game.goto_next < 12 and player.location > 12 and not player.endturn:
                                     game.players[game.turn]._money += 200
+                                if player.buy and not player.bought:
+                                    game.propmap.inorder[player.location].buy(player.id)
+                                    game.players[game.turn]._money -= game.propmap.inorder[player.location].price
+                                    player.bought = True
 
-                            if player.id == game.turn and game.endturn:
-                                game.play()
                     # send updated game
                     conn.sendall(pickle.dumps(game))
             else:
@@ -118,7 +131,6 @@ while True:
         print("Creating a new game...")
         p = 0
     else:
-        # games[gameId].ready = True
         p += 1
 
     start_new_thread(threaded_client, (conn, p, gameId))

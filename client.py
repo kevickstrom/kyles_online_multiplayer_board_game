@@ -44,6 +44,7 @@ notreadyimg = pygame.image.load(os.path.join('assets', "notready.png"))
 readyimg = pygame.image.load(os.path.join('assets', "ready.png"))
 endturnimg = pygame.image.load(os.path.join('assets', "endturn.png"))
 notendturnimg = pygame.image.load(os.path.join('assets', "notendturn.png"))
+buyimg = pygame.image.load(os.path.join('assets', "buy.png"))
 
 # properties load
 properties = PropertyMap()
@@ -116,7 +117,7 @@ for i in range(25, 32):
     inc += 1
 
 
-def draw_board():
+def draw_board(game=None):
     """
     Draws the board
     """
@@ -131,14 +132,15 @@ def draw_board():
 
     # blit to screen
     screen.blit(background, (0, 0))
-    for property in properties.inorder:
-        if property.price_pos:
-            font = pygame.font.Font(None, 36)
-            text = font.render(f"{property.rent}", True, (10, 10, 10))
-            textpos = text.get_rect()
-            textpos.centerx = property.price_pos[0]
-            textpos.centery = property.price_pos[1]
-            screen.blit(text, textpos)
+    if game:
+        for i in range(len(game.propmap.inorder)):
+            if properties.inorder[i].price_pos:
+                font = pygame.font.Font(None, 36)
+                text = font.render(f"{game.propmap.inorder[i].rent}", True, (10, 10, 10))
+                textpos = text.get_rect()
+                textpos.centerx = properties.inorder[i].price_pos[0]
+                textpos.centery = properties.inorder[i].price_pos[1]
+                screen.blit(text, textpos)
 
 
 def draw_ui(game, myself: Player) -> Player:
@@ -149,8 +151,6 @@ def draw_ui(game, myself: Player) -> Player:
     exit_button = button.Button(32, 16, exitimg, 0.5)
     notready_button = button.Button(boardrect.left - 96, HEIGHT - 50, notreadyimg)
     ready_button = button.Button(boardrect.left - 96, HEIGHT - 50, readyimg)
-    # endturn = button.Button(boardrect.centerx, (9 * propwidth) - 64, endturnimg)
-    # notendturn = button.Button(boardrect.left - 96, HEIGHT - 50, notendturnimg)
     border = pygame.Rect(0, 0, WIDTH - boardrect.width, exit_button.rect.height + 2)
     pygame.draw.rect(screen, (52, 78, 91), border)
     if settings.draw():
@@ -167,13 +167,6 @@ def draw_ui(game, myself: Player) -> Player:
             if ready_button.draw():
                 myself.ready = False
                 time.sleep(0.05)
-    # if game.started:
-    #     if game.turn == myself.id:
-    #         if endturn.draw():
-    #             myself.endturn = True
-    #     else:
-    #         if notendturn.draw():
-    #             pass
 
     i = 0
     for player in game.players:
@@ -283,7 +276,6 @@ def draw_players(game, myself):
             # note that each client can't actually change instance attributes of other players
             # ths is just used client side to facilitate correct animations
             player.rolling = False
-            player.endturn = True
             player.moving = False
             player.location = player.nextlocation
             player.spot = player.nextspot
@@ -292,6 +284,28 @@ def draw_players(game, myself):
                 wait = not wait
         else:
             pygame.draw.circle(screen, player.color, properties.inorder[player.location].spots[player.spot], 10)
+
+
+def turn(game, myself):
+    """
+    Buttons on the board to end turn and buy property
+    """
+    buy = button.Button(boardrect.centerx + 160, (9 * propwidth) - 64, buyimg)
+    endturn = button.Button(boardrect.centerx - 160, (9 * propwidth) - 64, endturnimg)
+    notendturn = button.Button(boardrect.centerx - 160, (9 * propwidth) - 64, notendturnimg)
+
+    if game.started:
+        if game.turn == myself.id:
+            if game.propmap.inorder[myself.location].owned is None:
+                if not myself.buy:
+                    if buy.draw():
+                        myself.buy = True
+        if not myself.endturn and myself.location == myself.nextlocation:
+            if endturn.draw() and myself._money >= game.propmap.inorder[myself.location].price:
+                myself.endturn = True
+        else:
+            if notendturn.draw():
+                pass
 
 
 def roll_dice(x=-1, y=-1):
@@ -473,10 +487,6 @@ def main():
             run = False
             print("Couldn't get game")
             break
-        if game.turn is not None:
-            if not myself.rolling and game.turn == myself.id and not game.endturn:
-                myself.rolling = True
-                myself.nextlocation = game.goto_next
 
         # event handling
         for event in pygame.event.get():
@@ -492,9 +502,10 @@ def main():
                 run = False
 
         # drawing to screen
-        draw_board()
+        draw_board(game)
         myself = draw_ui(game, myself)
         draw_players(game, myself)
+        turn(game, myself)
         if roll:
             if stop_roll:
                 roll = False

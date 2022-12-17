@@ -1,7 +1,7 @@
 # game class
 
 import random
-
+from properties import *
 
 class Game:
     def __init__(self, game_id: int):
@@ -10,6 +10,7 @@ class Game:
         self.players = []
         self.ready = False
         self.props = [i for i in range(0, 32)]  # list of property id's
+        self.propmap = PropertyMap()
 
         self.turn = None
         self.rolling = False

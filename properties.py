@@ -11,16 +11,21 @@ class Property:
         self.price = price
         self.rent = self.price
         self.price_pos = None
+
         self.image = None
         self.monopoly = False
-        self.houses = 0
-        self.house_price = None
-        self.hotels = 0
-        self.hotel_price = None
+        self.level = 0
+        self.level_up_price = self.price
+
+        self.owned = None  # stores who owns the property. None for bank owned
         self.mortgaged = False
         self.spots = []  # holds (x,y) location of spots for the client to fill in
         self.next = None
         self.back = None
+
+    def buy(self, owner_id: int):
+        self.owned = owner_id
+        self.rent = self.price // 4
 
     def __repr__(self):
         return repr(f"Property({self.id}, {self.name}, {self.color}, {self.price})")
