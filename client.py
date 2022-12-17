@@ -181,11 +181,12 @@ def draw_ui(game, myself: Player) -> Player:
         screen.blit(player_name, (40, player_namerect.centery))
 
         # blit money
-        money = str(player._money)
-        player_money = base_font.render(f"${money}", True, (255, 255, 255))
-        player_moneyrect = player_money.get_rect()
-        player_moneyrect.centery = player_moneyrect.height + player_namerect.centery
-        screen.blit(player_money, (40, player_moneyrect.centery))
+        if game.started:
+            money = str(game.player_money[player.id])
+            player_money = base_font.render(f"${money}", True, (255, 255, 255))
+            player_moneyrect = player_money.get_rect()
+            player_moneyrect.centery = player_moneyrect.height + player_namerect.centery
+            screen.blit(player_money, (40, player_moneyrect.centery))
         i += 100
 
     return myself
@@ -269,7 +270,7 @@ def draw_players(game, myself: Player) -> None:
                             pygame.draw.circle(screen, color, (x, y), 10)
                             lastx = x
                             lasty = y
-                    draw_turn(game, player)
+                    draw_turn(game, myself)
                     if not player.rolling:
                         roll_dice(game.lastroll[0], game.lastroll[1])
                 pygame.display.flip()
@@ -293,13 +294,21 @@ def draw_turn(game, myself: Player) -> None:
     notendturn = button.Button(boardrect.centerx - 160, (9 * propwidth) - 64, notendturnimg)
 
     if game.started:
+        font = pygame.font.Font(None, 36)
+        text = font.render(f"Turn: {game.players[game.turn].name}", True, (10, 10, 10))
+        textpos = text.get_rect()
+        textpos.centerx = boardrect.centerx
+        textpos.centery = boardrect.centery - 250
+        screen.blit(text, textpos)
         if game.turn == myself.id:
             if game.propmap.inorder[myself.location].owned is None:
-                if not myself.buy:
-                    if buy.draw():
-                        myself.buy = True
-        if not myself.endturn and myself.location == myself.nextlocation:
-            if endturn.draw() and myself._money >= game.propmap.inorder[myself.location].price:
+                if not myself.buy and game.player_money[myself.id] > game.propmap.inorder[myself.location].price:
+                    if game.player_money[myself.id] >= game.propmap.inorder[myself.location].price:
+                        if myself.location == myself.nextlocation:
+                            if buy.draw():
+                                myself.buy = True
+        if not myself.endturn and myself.location == myself.nextlocation and not myself.rolling:
+            if endturn.draw():
                 myself.endturn = True
         else:
             if notendturn.draw():

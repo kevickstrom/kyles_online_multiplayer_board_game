@@ -3,11 +3,13 @@
 import random
 from properties import *
 
+
 class Game:
     def __init__(self, game_id: int):
         self.id = game_id
         self.started = False
         self.players = []
+        self.player_money = {}
         self.ready = False
         self.props = [i for i in range(0, 32)]  # list of property id's
         self.propmap = PropertyMap()
@@ -24,6 +26,9 @@ class Game:
         :return:
         """
         self.started = True
+
+        for player in self.players:
+            self.player_money[player.id] = 1500
 
         firstturn = random.randrange(0, len(self.players))
         self.turn = self.players[firstturn].id
@@ -56,7 +61,7 @@ class Game:
         nextloc = self.players[self.turn].location + d1 + d2 + 2
         if nextloc > 31:
             nextloc = nextloc - 32
-            # self.players[self.turn]._money += 200
+            # self.player_money[self.turn] += 200
         self.goto_next = nextloc
 
     def add_player(self, player):

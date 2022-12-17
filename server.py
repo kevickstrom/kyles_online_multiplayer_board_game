@@ -96,10 +96,10 @@ def threaded_client(conn, p, gameId):
                                 if player.endturn:
                                     game.endturn = True
                                 if game.goto_next < 12 and player.location > 12 and not player.endturn:
-                                    game.players[game.turn]._money += 200
+                                    game.player_money[game.turn] += 200
                                 if player.buy and not player.bought:
                                     game.propmap.inorder[player.location].buy(player.id)
-                                    game.players[game.turn]._money -= game.propmap.inorder[player.location].price
+                                    game.player_money[game.turn] -= game.propmap.inorder[player.location].price
                                     player.bought = True
 
                     # send updated game
