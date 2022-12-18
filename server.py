@@ -101,7 +101,7 @@ def threaded_client(conn, p, gameId):
                                     game.player_money[game.turn] += 200
                                 landed_on = game.propmap.inorder[game.goto_next]
                                 if landed_on.owned is not None and landed_on.owned != player.id and not player.paid:
-                                    if not player.rolling:
+                                    if not player.rolling and landed_on.owned > -1:
                                         game.rent_paid = True
                                         player.paid = True
                                         game.player_money[game.turn] -= landed_on.rent

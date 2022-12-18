@@ -66,10 +66,10 @@ for i in range(0, 8):
     if i != 0 and i != 4:
         properties.inorder[i].price_pos = (WIDTH - (3 * propwidth)//2 - (i * propwidth), HEIGHT - propheight//6)
 # jail corner
-properties.inorder[8].spots.append((WIDTH - (2 * propwidth) - (9 * propwidth) + xshift2, HEIGHT - propheight + 30))
-properties.inorder[8].spots.append((WIDTH - (2 * propwidth) - (9 * propwidth) + xshift2, HEIGHT - propheight + 60))
-properties.inorder[8].spots.append((WIDTH - (2 * propwidth) - (9 * propwidth) + xshift1, HEIGHT - propheight + 30))
-properties.inorder[8].spots.append((WIDTH - (2 * propwidth) - (9 * propwidth) + xshift1, HEIGHT - propheight + 60))
+properties.inorder[8].spots.append((WIDTH - (10 * propwidth) - 20, HEIGHT - propheight//2))
+properties.inorder[8].spots.append((WIDTH - (10 * propwidth) - 20 + xshift1, HEIGHT - propheight//2))
+properties.inorder[8].spots.append((WIDTH - (10 * propwidth) - 20, HEIGHT - propheight//2 + 20))
+properties.inorder[8].spots.append((WIDTH - (10 * propwidth) - 20, HEIGHT - propheight//2 + 20))
 # left side including top left corner
 inc = 0
 for i in range(9, 17):
@@ -134,6 +134,7 @@ def draw_board(game=None) -> None:
     screen.blit(background, (0, 0))
     if game:
         for i in range(len(game.propmap.inorder)):
+            # draw price and rent on each property
             if properties.inorder[i].price_pos:
                 font = pygame.font.Font(None, 36)
                 text = font.render(f"{game.propmap.inorder[i].rent}", True, (10, 10, 10))
@@ -141,6 +142,41 @@ def draw_board(game=None) -> None:
                 textpos.centerx = properties.inorder[i].price_pos[0]
                 textpos.centery = properties.inorder[i].price_pos[1]
                 screen.blit(text, textpos)
+            if game.propmap.inorder[i].owned is not None and game.propmap.inorder[i].owned > -1:
+                color = game.players[game.propmap.inorder[i].owned].color
+                # browns
+                if 1 <= i <= 3:
+                    pygame.draw.rect(screen, color, pygame.Rect(WIDTH - 2*propwidth - i*propwidth,
+                                                                HEIGHT - propheight, propwidth, propheight//4))
+                # blues
+                if 5 <= i <= 7:
+                    pygame.draw.rect(screen, color, pygame.Rect(WIDTH - 2*propwidth - i*propwidth,
+                                                                HEIGHT - propheight, propwidth, propheight//4))
+                # pinks
+                if 9 <= i <= 11:
+                    pygame.draw.rect(screen, color, pygame.Rect(WIDTH - 9*propwidth - propheight//4,
+                                                                HEIGHT - propheight - (i - 8)*propwidth,
+                                                                propheight//4, propwidth))
+                # oranges
+                if i == 13 or i == 15:
+                    pygame.draw.rect(screen, color, pygame.Rect(WIDTH - 9 * propwidth - propheight // 4,
+                                                                HEIGHT - propheight - (i - 8) * propwidth,
+                                                                propheight // 4, propwidth))
+                # reds
+                if i == 17 or i == 19:
+                    pygame.draw.rect(screen, color, pygame.Rect(WIDTH - 9 * propwidth + (i - 17)*propwidth,
+                                                                propheight - propheight//4,
+                                                                propwidth, propheight // 4))
+                # yellows
+                if 20 <= i <= 23:
+                    pygame.draw.rect(screen, color, pygame.Rect(WIDTH - 9 * propwidth + (i - 17)*propwidth,
+                                                                propheight - propheight//4,
+                                                                propwidth, propheight // 4))
+                # greens and purples
+                if i == 26 or i == 27 or i == 29 or i == 31:
+                    pygame.draw.rect(screen, color, pygame.Rect(WIDTH - propheight,
+                                                                3*propwidth + (i - 26) * propwidth,
+                                                                propheight // 4, propwidth))
 
 
 def draw_ui(game, myself: Player) -> Player:

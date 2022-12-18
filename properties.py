@@ -17,7 +17,7 @@ class Property:
         self.level = 0
         self.level_up_price = self.price
 
-        self.owned = None  # stores who owns the property. None for bank owned
+        self.owned = None  # stores who owns the property. None for bank owned -1 means cannot be owned
         self.mortgaged = False
         self.spots = []  # holds (x,y) location of spots for the client to fill in
         self.next = None
@@ -61,6 +61,7 @@ class PropertyMap:
         Adds all the properties to the inorder list
         """
         go = Property(0, "Go", "Go", 0)
+        go.owned = -1
         brown1 = Property(1, "Brown 1", "brown", 100)
         brown2 = Property(2, "Brown 2", "brown", 120)
         brown3 = Property(3, "Brown 3", "brown", 120)
@@ -69,26 +70,32 @@ class PropertyMap:
         blue2 = Property(6, "Blue 2", "blue", 140)
         blue3 = Property(7, "Blue 3", "blue", 160)
         jail = Property(8, "Jail", "jail", 200)
+        jail.owned = -1
         pink1 = Property(9, "Pink 1", "pink", 180)
         pink2 = Property(10, "Pink 2", "pink", 180)
         pink3 = Property(11, "Pink 3", "pink", 200)
         star1 = Property(12, "Starship 1", "starship", 0)
+        star1.owned = -1
         orange1 = Property(13, "Orange 1", "orange", 220)
         bus2 = Property(15, "Bus 2", "bus", 200)
         orange2 = Property(15, "Orange 2", "orange", 220)
         corner2 = Property(16, "Corner 2", "corner", 0)
+        corner2.owned = -1
         red1 = Property(17, "Red 1", "red", 240)
         bus3 = Property(18, "Bus 3", "bus", 200)
         red2 = Property(19, "Red 2", "red", 240)
         star2 = Property(20, "Starship 2", "starship", 0)
+        star2.owned = -1
         yellow1 = Property(21, "Yellow 1", "Yellow", 260)
         yellow2 = Property(22, "Yellow 2", "Yellow", 280)
         yellow3 = Property(23, "Yellow 3", "Yellow", 300)
         corner3 = Property(24, "Corner 3", "corner", 0)
+        corner3.owned = -1
         bus4 = Property(25, "Bus 4", "bus", 200)
         green1 = Property(26, "Green 1", "green", 320)
         green2 = Property(27, "Green 2", "green", 360)
         star3 = Property(28, "Starship 3", "starship", 0)
+        star3.owned = -1
         purple1 = Property(29, "Purple 1", "purple", 380)
         tuition = Property(30, "Tuition Due", "tuition", 500)
         purple2 = Property(31, "Purple 2", "purple", 400)
