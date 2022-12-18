@@ -5,7 +5,7 @@ made using pygame and sockets
 
 this is what the board looks like right now
 
-<img src="./assets/board.png">
+<img src="./assets/boardwprice.png">
 
 # run client
 
