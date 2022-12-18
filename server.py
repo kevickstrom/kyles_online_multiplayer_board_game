@@ -89,14 +89,23 @@ def threaded_client(conn, p, gameId):
                             game.players[game.turn].nextlocation = game.goto_next
                             game.players[game.turn].buy = False
                             game.players[game.turn].bought = False
+                            game.players[game.turn].paid = False
                         for player in game.players:
                             if game.turn == player.id and not player.rolling:
                                 if player.location == player.nextlocation:
                                     game.rolling = False
                                 if player.endturn:
                                     game.endturn = True
-                                if game.goto_next < 12 and player.location > 12 and not player.endturn:
+                                if game.collect_go:
+                                    game.collect_go = False
                                     game.player_money[game.turn] += 200
+                                landed_on = game.propmap.inorder[game.goto_next]
+                                if landed_on.owned is not None and landed_on.owned != player.id and not player.paid:
+                                    if not player.rolling:
+                                        game.rent_paid = True
+                                        player.paid = True
+                                        game.player_money[game.turn] -= landed_on.rent
+                                        game.player_money[landed_on.owned] += landed_on.rent
                                 if player.buy and not player.bought:
                                     game.propmap.inorder[player.location].buy(player.id)
                                     game.player_money[game.turn] -= game.propmap.inorder[player.location].price

@@ -7,18 +7,21 @@ from properties import *
 class Game:
     def __init__(self, game_id: int):
         self.id = game_id
+        self.ready = False
         self.started = False
+
         self.players = []
         self.player_money = {}
-        self.ready = False
         self.props = [i for i in range(0, 32)]  # list of property id's
         self.propmap = PropertyMap()
 
         self.turn = None
+        self.collect_go = False
         self.rolling = False
         self.endturn = False
         self.lastroll = (0, 0)
         self.goto_next = 0
+        self.rent_paid = False
 
     def start(self):
         """
@@ -53,6 +56,7 @@ class Game:
 
         self.rolling = True
         self.endturn = False
+        self.rent_paid = False
         d1 = random.randrange(0, 6)
         d2 = random.randrange(0, 6)
         self.lastroll = (d1, d2)
@@ -61,7 +65,7 @@ class Game:
         nextloc = self.players[self.turn].location + d1 + d2 + 2
         if nextloc > 31:
             nextloc = nextloc - 32
-            # self.player_money[self.turn] += 200
+            self.collect_go = True
         self.goto_next = nextloc
 
     def add_player(self, player):

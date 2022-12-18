@@ -274,7 +274,7 @@ def draw_players(game, myself: Player) -> None:
                     if not player.rolling:
                         roll_dice(game.lastroll[0], game.lastroll[1])
                 pygame.display.flip()
-                clock.tick(30)
+                clock.tick(60)
             # note that each client can't actually change instance attributes of other players
             # ths is just used client side to facilitate correct animations
             player.rolling = False
@@ -289,6 +289,7 @@ def draw_turn(game, myself: Player) -> None:
     """
     Buttons on the board to end turn and buy property
     """
+    global screen
     buy = button.Button(boardrect.centerx + 160, (9 * propwidth) - 64, buyimg)
     endturn = button.Button(boardrect.centerx - 160, (9 * propwidth) - 64, endturnimg)
     notendturn = button.Button(boardrect.centerx - 160, (9 * propwidth) - 64, notendturnimg)
@@ -307,6 +308,18 @@ def draw_turn(game, myself: Player) -> None:
                         if myself.location == myself.nextlocation:
                             if buy.draw():
                                 myself.buy = True
+        if game.rent_paid:
+            landed_on = game.propmap.inorder[game.goto_next]
+            font = pygame.font.Font(None, 64)
+            renttext = font.render(
+                f"{game.players[game.turn].name}"
+                f" paid"
+                f" {game.players[landed_on.owned].name}"
+                f" ${landed_on.rent}", True, (255, 0, 0))
+            renttextpos = text.get_rect()
+            renttextpos.centerx = boardrect.centerx
+            renttextpos.centery = boardrect.centery - 150
+            screen.blit(renttext, renttextpos)
         if not myself.endturn and myself.location == myself.nextlocation and not myself.rolling:
             if endturn.draw():
                 myself.endturn = True
@@ -319,6 +332,7 @@ def roll_dice(x: int = -1, y: int = -1) -> None:
     """
     Draws the dice
     """
+    global screen
     if x == -1:
         num1 = random.randrange(0, 6)
         dice1 = faces[num1]
@@ -422,7 +436,7 @@ def start_menu(playernum: int) -> Player:
         input_rect.w = max(100, user_text_surface.get_width() + 10)
 
         pygame.display.flip()
-        clock.tick(30)
+        clock.tick(60)
     me = Player(playernum)
     me.name = user_text
     me.color = color_choices[choice]
@@ -459,7 +473,7 @@ def settings_menu() -> None:
                 pygame.quit()
                 sys.exit()
         pygame.display.flip()
-        clock.tick(30)
+        clock.tick(60)
 
 
 def main():
@@ -524,7 +538,7 @@ def main():
                 roll_dice()
 
         pygame.display.flip()
-        clock.tick(30)
+        clock.tick(60)
 
 
 if __name__ == "__main__":

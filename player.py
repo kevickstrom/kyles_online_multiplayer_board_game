@@ -19,6 +19,7 @@ class Player:
 
         self.buy = False
         self.bought = False
+        self.paid = False
 
         self.endturn = True
         self.rolling = False
