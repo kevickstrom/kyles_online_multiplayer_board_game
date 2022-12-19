@@ -27,6 +27,10 @@ class Property:
         self.owned = owner_id
         self.rent = self.price // 4
 
+    def level_up(self):
+        self.level += 1
+        self.rent = 2 * self.rent
+
     def __repr__(self):
         return repr(f"Property({self.id}, {self.name}, {self.color}, {self.price})")
 

@@ -14,6 +14,7 @@ class Game:
         self.player_money = {}
         self.props = [i for i in range(0, 32)]  # list of property id's
         self.propmap = PropertyMap()
+        self.leveled = False
 
         self.turn = None
         self.collect_go = False

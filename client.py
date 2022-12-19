@@ -21,7 +21,6 @@ fullscreen = True
 pygame.display.set_caption("Monopoly but only Kyle can cheat")
 base_font = pygame.font.Font(None, 32)
 
-
 # dice load
 faces = [pygame.image.load((os.path.join('dice-sheet', '1face.png'))),
          pygame.image.load((os.path.join('dice-sheet', '2face.png'))),
@@ -45,6 +44,14 @@ readyimg = pygame.image.load(os.path.join('assets', "ready.png"))
 endturnimg = pygame.image.load(os.path.join('assets', "endturn.png"))
 notendturnimg = pygame.image.load(os.path.join('assets', "notendturn.png"))
 buyimg = pygame.image.load(os.path.join('assets', "buy.png"))
+lvlupimg = pygame.image.load(os.path.join('assets', "levelup.png"))
+
+# property level images
+lvlimg = [pygame.image.load(os.path.join('assets', "lvl0.png")), pygame.image.load(os.path.join('assets', "lvl1.png")),
+          pygame.image.load(os.path.join('assets', "lvl2.png")), pygame.image.load(os.path.join('assets', "lvl3.png")),
+          pygame.image.load(os.path.join('assets', "lvl4.png")), pygame.image.load(os.path.join('assets', "lvl5.png"))]
+for i in range(len(lvlimg)):
+    lvlimg[i] = pygame.transform.smoothscale(lvlimg[i], ((boardrect.width // 11)//4, (boardrect.width // 11)//4))
 
 # properties load
 properties = PropertyMap()
@@ -56,20 +63,20 @@ xshift2 = 1 * (propwidth // 3)
 # bottom row including go
 for i in range(0, 8):
     properties.inorder[i].spots.append(
-        (WIDTH - (2 * propwidth) - (i * propwidth) + xshift2, HEIGHT - propheight//2))
+        (WIDTH - (2 * propwidth) - (i * propwidth) + xshift2, HEIGHT - propheight // 2))
     properties.inorder[i].spots.append(
-        (WIDTH - (2 * propwidth) - (i * propwidth) + xshift2, HEIGHT - propheight//2 + 30))
+        (WIDTH - (2 * propwidth) - (i * propwidth) + xshift2, HEIGHT - propheight // 2 + 30))
     properties.inorder[i].spots.append(
-        (WIDTH - (2 * propwidth) - (i * propwidth) + xshift1, HEIGHT - propheight//2))
+        (WIDTH - (2 * propwidth) - (i * propwidth) + xshift1, HEIGHT - propheight // 2))
     properties.inorder[i].spots.append(
-        (WIDTH - (2 * propwidth) - (i * propwidth) + xshift1, HEIGHT - propheight//2 + 30))
+        (WIDTH - (2 * propwidth) - (i * propwidth) + xshift1, HEIGHT - propheight // 2 + 30))
     if i != 0 and i != 4:
-        properties.inorder[i].price_pos = (WIDTH - (3 * propwidth)//2 - (i * propwidth), HEIGHT - propheight//6)
+        properties.inorder[i].price_pos = (WIDTH - (3 * propwidth) // 2 - (i * propwidth), HEIGHT - propheight // 6)
 # jail corner
-properties.inorder[8].spots.append((WIDTH - (10 * propwidth) - 20, HEIGHT - propheight//2))
-properties.inorder[8].spots.append((WIDTH - (10 * propwidth) - 20 + xshift1, HEIGHT - propheight//2))
-properties.inorder[8].spots.append((WIDTH - (10 * propwidth) - 20, HEIGHT - propheight//2 + 20))
-properties.inorder[8].spots.append((WIDTH - (10 * propwidth) - 20, HEIGHT - propheight//2 + 20))
+properties.inorder[8].spots.append((WIDTH - (10 * propwidth) - 20, HEIGHT - propheight // 2))
+properties.inorder[8].spots.append((WIDTH - (10 * propwidth) - 20 + xshift1, HEIGHT - propheight // 2))
+properties.inorder[8].spots.append((WIDTH - (10 * propwidth) - 20, HEIGHT - propheight // 2 + 20))
+properties.inorder[8].spots.append((WIDTH - (10 * propwidth) - 20, HEIGHT - propheight // 2 + 20))
 # left side including top left corner
 inc = 0
 for i in range(9, 17):
@@ -82,8 +89,8 @@ for i in range(9, 17):
     properties.inorder[i].spots.append(
         (WIDTH - (10 * propwidth) + 20, HEIGHT - propheight - (inc * propwidth) - xshift2))
     if i != 12 and i != 14 and i != 16:
-        properties.inorder[i].price_pos = (WIDTH - (11 * propwidth) + propheight//2,
-                                           HEIGHT - propheight - (inc * propwidth) - propwidth//4)
+        properties.inorder[i].price_pos = (WIDTH - (11 * propwidth) + propheight // 2,
+                                           HEIGHT - propheight - (inc * propwidth) - propwidth // 4)
     inc += 1
 # top side including right corner
 inc = 0
@@ -97,23 +104,23 @@ for i in range(17, 25):
     properties.inorder[i].spots.append(
         (WIDTH - (9 * propwidth) + (inc * propwidth) + xshift2, HEIGHT - (5 * propheight) + 20))
     if i != 18 and i != 20 and i != 24:
-        properties.inorder[i].price_pos = (WIDTH - (9 * propwidth) + (inc * propwidth) + propwidth//2,
-                                           HEIGHT - (5 * propheight) + propheight//8)
+        properties.inorder[i].price_pos = (WIDTH - (9 * propwidth) + (inc * propwidth) + propwidth // 2,
+                                           HEIGHT - (5 * propheight) + propheight // 8)
     inc += 1
 # right side not including any corners
 inc = 0
 for i in range(25, 32):
     properties.inorder[i].spots.append(
-        (WIDTH - propwidth - 20, propheight + propwidth//2 + (inc * propwidth) + xshift2))
+        (WIDTH - propwidth - 20, propheight + propwidth // 2 + (inc * propwidth) + xshift2))
     properties.inorder[i].spots.append(
-        (WIDTH - propwidth + 20, propheight + propwidth//2 + (inc * propwidth) + xshift2))
+        (WIDTH - propwidth + 20, propheight + propwidth // 2 + (inc * propwidth) + xshift2))
     properties.inorder[i].spots.append(
-        (WIDTH - propwidth - 20, propheight + propwidth//2 + (inc * propwidth) - xshift2))
+        (WIDTH - propwidth - 20, propheight + propwidth // 2 + (inc * propwidth) - xshift2))
     properties.inorder[i].spots.append(
-        (WIDTH - propwidth + 20, propheight + propwidth//2 + (inc * propwidth) - xshift2))
+        (WIDTH - propwidth + 20, propheight + propwidth // 2 + (inc * propwidth) - xshift2))
     if i != 25 and i != 28:
-        properties.inorder[i].price_pos = (WIDTH - propheight//2,
-                                           propheight + propwidth//2 + (inc * propwidth) + propwidth//3)
+        properties.inorder[i].price_pos = (WIDTH - propheight // 2,
+                                           propheight + propwidth // 2 + (inc * propwidth) + propwidth // 3)
     inc += 1
 
 
@@ -142,41 +149,54 @@ def draw_board(game=None) -> None:
                 textpos.centerx = properties.inorder[i].price_pos[0]
                 textpos.centery = properties.inorder[i].price_pos[1]
                 screen.blit(text, textpos)
+            locationlvl = game.propmap.inorder[i].level
             if game.propmap.inorder[i].owned is not None and game.propmap.inorder[i].owned > -1:
                 color = game.players[game.propmap.inorder[i].owned].color
                 # browns
                 if 1 <= i <= 3:
-                    pygame.draw.rect(screen, color, pygame.Rect(WIDTH - 2*propwidth - i*propwidth,
-                                                                HEIGHT - propheight, propwidth, propheight//4))
+                    pygame.draw.rect(screen, color, pygame.Rect(WIDTH - 2 * propwidth - i * propwidth,
+                                                                HEIGHT - propheight, propwidth, propheight // 4))
+                    screen.blit(lvlimg[locationlvl], (WIDTH - 2 * propwidth - i * propwidth, HEIGHT - propheight))
                 # blues
                 if 5 <= i <= 7:
-                    pygame.draw.rect(screen, color, pygame.Rect(WIDTH - 2*propwidth - i*propwidth,
-                                                                HEIGHT - propheight, propwidth, propheight//4))
+                    pygame.draw.rect(screen, color, pygame.Rect(WIDTH - 2 * propwidth - i * propwidth,
+                                                                HEIGHT - propheight, propwidth, propheight // 4))
+                    screen.blit(lvlimg[locationlvl], (WIDTH - 2 * propwidth - i * propwidth, HEIGHT - propheight))
                 # pinks
                 if 9 <= i <= 11:
-                    pygame.draw.rect(screen, color, pygame.Rect(WIDTH - 9*propwidth - propheight//4,
-                                                                HEIGHT - propheight - (i - 8)*propwidth,
-                                                                propheight//4, propwidth))
+                    pygame.draw.rect(screen, color, pygame.Rect(WIDTH - 9 * propwidth - propheight // 4,
+                                                                HEIGHT - propheight - (i - 8) * propwidth,
+                                                                propheight // 4, propwidth))
+                    screen.blit(lvlimg[locationlvl], (WIDTH - 9 * propwidth - propheight // 4,
+                                                     HEIGHT - propheight - (i - 8) * propwidth))
                 # oranges
                 if i == 13 or i == 15:
                     pygame.draw.rect(screen, color, pygame.Rect(WIDTH - 9 * propwidth - propheight // 4,
                                                                 HEIGHT - propheight - (i - 8) * propwidth,
                                                                 propheight // 4, propwidth))
+                    screen.blit(lvlimg[locationlvl], (WIDTH - 9 * propwidth - propheight // 4,
+                                                     HEIGHT - propheight - (i - 8) * propwidth))
                 # reds
                 if i == 17 or i == 19:
-                    pygame.draw.rect(screen, color, pygame.Rect(WIDTH - 9 * propwidth + (i - 17)*propwidth,
-                                                                propheight - propheight//4,
+                    pygame.draw.rect(screen, color, pygame.Rect(WIDTH - 9 * propwidth + (i - 17) * propwidth,
+                                                                propheight - propheight // 4,
                                                                 propwidth, propheight // 4))
+                    screen.blit(lvlimg[locationlvl], (WIDTH - 9 * propwidth + (i - 17) * propwidth,
+                                                     propheight - propheight // 4))
                 # yellows
                 if 20 <= i <= 23:
-                    pygame.draw.rect(screen, color, pygame.Rect(WIDTH - 9 * propwidth + (i - 17)*propwidth,
-                                                                propheight - propheight//4,
+                    pygame.draw.rect(screen, color, pygame.Rect(WIDTH - 9 * propwidth + (i - 17) * propwidth,
+                                                                propheight - propheight // 4,
                                                                 propwidth, propheight // 4))
+                    screen.blit(lvlimg[locationlvl], (WIDTH - 9 * propwidth + (i - 17) * propwidth,
+                                                     propheight - propheight // 4))
                 # greens and purples
                 if i == 26 or i == 27 or i == 29 or i == 31:
                     pygame.draw.rect(screen, color, pygame.Rect(WIDTH - propheight,
-                                                                3*propwidth + (i - 26) * propwidth,
+                                                                3 * propwidth + (i - 26) * propwidth,
                                                                 propheight // 4, propwidth))
+                    screen.blit(lvlimg[locationlvl], (WIDTH - propheight,
+                                                     3 * propwidth + (i - 26) * propwidth))
 
 
 def draw_ui(game, myself: Player) -> Player:
@@ -329,6 +349,7 @@ def draw_turn(game, myself: Player) -> None:
     buy = button.Button(boardrect.centerx + 160, (9 * propwidth) - 64, buyimg)
     endturn = button.Button(boardrect.centerx - 160, (9 * propwidth) - 64, endturnimg)
     notendturn = button.Button(boardrect.centerx - 160, (9 * propwidth) - 64, notendturnimg)
+    lvlup = button.Button(boardrect.centerx + 160, (9 * propwidth) - 64, lvlupimg)
 
     if game.started:
         font = pygame.font.Font(None, 36)
@@ -338,12 +359,29 @@ def draw_turn(game, myself: Player) -> None:
         textpos.centery = boardrect.centery - 250
         screen.blit(text, textpos)
         if game.turn == myself.id:
+            # buy property
             if game.propmap.inorder[myself.location].owned is None:
                 if not myself.buy and game.player_money[myself.id] > game.propmap.inorder[myself.location].price:
                     if game.player_money[myself.id] >= game.propmap.inorder[myself.location].price:
                         if myself.location == myself.nextlocation:
                             if buy.draw():
                                 myself.buy = True
+            # level up property
+            elif game.propmap.inorder[myself.location].owned is not None:
+                if game.propmap.inorder[myself.location].owned == myself.id and not myself.buy:
+                    if not myself.lvld and game.player_money[myself.id] >= game.propmap.inorder[myself.location].price:
+                        if myself.location == myself.nextlocation and game.propmap.inorder[myself.location].monopoly:
+                            if game.propmap.inorder[myself.location].level <= 5:
+                                font = pygame.font.Font(None, 32)
+                                lvltext = font.render(
+                                    f"for -${game.propmap.inorder[myself.location].price}?", True, (255, 0, 0))
+                                lvltextpos = text.get_rect()
+                                lvltextpos.centerx = lvlup.rect.centerx
+                                lvltextpos.centery = lvlup.rect.centery - 2 * lvltextpos.height
+                                screen.blit(lvltext, lvltextpos)
+                                if lvlup.draw():
+                                    myself.lvlup = True
+        # show player transactions
         if game.rent_paid:
             landed_on = game.propmap.inorder[game.goto_next]
             font = pygame.font.Font(None, 64)
@@ -353,9 +391,22 @@ def draw_turn(game, myself: Player) -> None:
                 f" {game.players[landed_on.owned].name}"
                 f" ${landed_on.rent}", True, (255, 0, 0))
             renttextpos = text.get_rect()
-            renttextpos.centerx = boardrect.centerx
+            renttextpos.centerx = boardrect.centerx - 200
             renttextpos.centery = boardrect.centery - 150
             screen.blit(renttext, renttextpos)
+        # show players leveling up properties
+        if game.leveled:
+            font = pygame.font.Font(None, 32)
+            lvltext = font.render(
+                f" {game.players[game.turn].name}"
+                f" leveled up {game.propmap.inorder[game.goto_next].name}"
+                f" to lvl {game.propmap.inorder[game.goto_next].level}"
+                f" for ${game.propmap.inorder[game.goto_next].price}", True, (255, 0, 0))
+            lvltextpos = text.get_rect()
+            lvltextpos.centerx = boardrect.centerx - 200
+            lvltextpos.centery = boardrect.centery - 150
+            screen.blit(lvltext, lvltextpos)
+        # end turn buttons
         if not myself.endturn and myself.location == myself.nextlocation and not myself.rolling:
             if endturn.draw():
                 myself.endturn = True
@@ -413,8 +464,8 @@ def start_menu(playernum: int) -> Player:
     clock = pygame.time.Clock()
 
     choice = 0
-    left_button = button.Button(WIDTH//2 - 250, HEIGHT//2, faces[choice], 1)
-    right_button = button.Button(WIDTH//2 + 250, HEIGHT//2, faces[choice + 1], 1)
+    left_button = button.Button(WIDTH // 2 - 250, HEIGHT // 2, faces[choice], 1)
+    right_button = button.Button(WIDTH // 2 + 250, HEIGHT // 2, faces[choice + 1], 1)
     color_choices = ["RED", "GREEN", "BLUE", "YELLOW", "CYAN", "MAGENTA"]
 
     menu = True
@@ -460,8 +511,8 @@ def start_menu(playernum: int) -> Player:
                     right_button.image = faces[choice + 1]
                 time.sleep(0.2)
         color_text_surface = base_font.render("Choose a color:", True, (255, 255, 255))
-        screen.blit(color_text_surface, (WIDTH//2 - color_text_surface.get_width()//2, HEIGHT//2 - 100))
-        pygame.draw.circle(screen, color_choices[choice], (WIDTH//2, HEIGHT//2), 50)
+        screen.blit(color_text_surface, (WIDTH // 2 - color_text_surface.get_width() // 2, HEIGHT // 2 - 100))
+        pygame.draw.circle(screen, color_choices[choice], (WIDTH // 2, HEIGHT // 2), 50)
 
         # enter name
         pygame.draw.rect(screen, color, input_rect)

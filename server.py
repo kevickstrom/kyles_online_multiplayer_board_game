@@ -84,12 +84,15 @@ def threaded_client(conn, p, gameId):
                     else:
                         if game.players[game.turn].endturn and game.endturn:
                             game.play()
+                            game.leveled = False
                             game.players[game.turn].endturn = False
                             game.players[game.turn].rolling = True
                             game.players[game.turn].nextlocation = game.goto_next
                             game.players[game.turn].buy = False
                             game.players[game.turn].bought = False
                             game.players[game.turn].paid = False
+                            game.players[game.turn].lvlup = False
+                            game.players[game.turn].lvld = False
                         for player in game.players:
                             if game.turn == player.id and not player.rolling:
                                 if player.location == player.nextlocation:
@@ -106,10 +109,41 @@ def threaded_client(conn, p, gameId):
                                         player.paid = True
                                         game.player_money[game.turn] -= landed_on.rent
                                         game.player_money[landed_on.owned] += landed_on.rent
+                                # buying property and checking for monopoly
                                 if player.buy and not player.bought:
                                     game.propmap.inorder[player.location].buy(player.id)
                                     game.player_money[game.turn] -= game.propmap.inorder[player.location].price
+                                    color = game.propmap.inorder[player.location].color
+                                    group = []
+                                    monopolized = False
+                                    for i in range(len(game.propmap.inorder)):
+                                        if game.propmap.inorder[i].color == color:
+                                            group.append(game.propmap.inorder[i])
+                                    for prop in group:
+                                        if prop is not None:
+                                            if prop.owned == player.id:
+                                                monopolized = True
+                                            else:
+                                                monopolized = False
+                                                break
+                                    if monopolized:
+                                        for prop in group:
+                                            if not prop.monopoly:
+                                                prop.monopoly = True
+                                                prop.level += 1
+                                                prop.rent = 2*prop.rent
                                     player.bought = True
+                                if landed_on.owned is not None:
+                                    if landed_on.owned == player.id:
+                                        if landed_on.monopoly:
+                                            if player.lvlup and not player.lvld:
+                                                player.lvld = True
+                                                landed_on.level += 1
+                                                current = landed_on.rent
+                                                landed_on.rent = 2 * current
+                                                print(landed_on.rent)
+                                                game.player_money[game.turn] -= landed_on.price
+                                                game.leveled = True
 
                     # send updated game
                     conn.sendall(pickle.dumps(game))

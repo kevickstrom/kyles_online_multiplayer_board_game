@@ -21,6 +21,9 @@ class Player:
         self.bought = False
         self.paid = False
 
+        self.lvlup = False
+        self.lvld = False
+
         self.endturn = True
         self.rolling = False
         self.showroll = False
