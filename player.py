@@ -20,6 +20,8 @@ class Player:
         self.buy = False
         self.bought = False
         self.paid = False
+        self.sell = False
+        self.sold = False
 
         self.lvlup = False
         self.lvld = False

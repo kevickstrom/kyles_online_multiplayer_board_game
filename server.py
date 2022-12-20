@@ -93,6 +93,8 @@ def threaded_client(conn, p, gameId):
                             game.players[game.turn].paid = False
                             game.players[game.turn].lvlup = False
                             game.players[game.turn].lvld = False
+                            game.players[game.turn].sell = False
+                            game.players[game.turn].sold = False
                         for player in game.players:
                             if game.turn == player.id and not player.rolling:
                                 if player.location == player.nextlocation:
@@ -133,6 +135,7 @@ def threaded_client(conn, p, gameId):
                                                 prop.level += 1
                                                 prop.rent = 2*prop.rent
                                     player.bought = True
+                                # level up property
                                 if landed_on.owned is not None:
                                     if landed_on.owned == player.id:
                                         if landed_on.monopoly:
@@ -144,6 +147,22 @@ def threaded_client(conn, p, gameId):
                                                 print(landed_on.rent)
                                                 game.player_money[game.turn] -= landed_on.price
                                                 game.leveled = True
+                                        if player.sell and not player.sold:
+                                            player.sold = True
+                                            if landed_on.level == 0:
+                                                game.player_money[game.turn] += landed_on.price
+                                            else:
+                                                game.player_money[game.turn] += landed_on.price * landed_on.level
+                                            landed_on.owned = None
+                                            landed_on.level = 0
+                                            landed_on.rent = landed_on.price
+                                            for samecolor in game.propmap.inorder:
+                                                if samecolor.color == landed_on.color:
+                                                    if samecolor.monopoly:
+                                                        game.player_money[game.turn] += \
+                                                            samecolor.price * (samecolor.level - 1)
+                                                    samecolor.monopoly = False
+                                                    samecolor.level = 0
 
                     # send updated game
                     conn.sendall(pickle.dumps(game))

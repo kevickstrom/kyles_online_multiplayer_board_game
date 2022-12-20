@@ -45,6 +45,7 @@ endturnimg = pygame.image.load(os.path.join('assets', "endturn.png"))
 notendturnimg = pygame.image.load(os.path.join('assets', "notendturn.png"))
 buyimg = pygame.image.load(os.path.join('assets', "buy.png"))
 lvlupimg = pygame.image.load(os.path.join('assets', "levelup.png"))
+sellimg = pygame.image.load(os.path.join('assets', "sell.png"))
 
 # property level images
 lvlimg = [pygame.image.load(os.path.join('assets', "lvl0.png")), pygame.image.load(os.path.join('assets', "lvl1.png")),
@@ -228,13 +229,14 @@ def draw_ui(game, myself: Player) -> Player:
     for player in game.players:
 
         # blit color
-        pygame.draw.circle(screen, player.color, (20, i + 50), 10)
+        pygame.draw.circle(screen, player.color, (WIDTH - boardrect.width - 20, i + 50), 10)
 
         # blit name
         player_name = base_font.render(player.name, True, (255, 255, 255))
         player_namerect = player_name.get_rect()
         player_namerect.centery = i + 50
-        screen.blit(player_name, (40, player_namerect.centery))
+        player_namewidth = player_namerect.width
+        screen.blit(player_name, (WIDTH - boardrect.width - player_namewidth - 40, player_namerect.centery))
 
         # blit money
         if game.started:
@@ -242,7 +244,8 @@ def draw_ui(game, myself: Player) -> Player:
             player_money = base_font.render(f"${money}", True, (255, 255, 255))
             player_moneyrect = player_money.get_rect()
             player_moneyrect.centery = player_moneyrect.height + player_namerect.centery
-            screen.blit(player_money, (40, player_moneyrect.centery))
+            moneywidth = player_moneyrect.width
+            screen.blit(player_money, (WIDTH - boardrect.width - player_namewidth - moneywidth - 40, player_moneyrect.centery))
         i += 100
 
     return myself
@@ -338,6 +341,7 @@ def draw_players(game, myself: Player) -> None:
             player.location = player.nextlocation
             player.spot = player.nextspot
         else:
+            pygame.draw.circle(screen, (0, 0, 0), properties.inorder[player.location].spots[player.spot], 12)
             pygame.draw.circle(screen, player.color, properties.inorder[player.location].spots[player.spot], 10)
 
 
@@ -350,6 +354,7 @@ def draw_turn(game, myself: Player) -> None:
     endturn = button.Button(boardrect.centerx - 160, (9 * propwidth) - 64, endturnimg)
     notendturn = button.Button(boardrect.centerx - 160, (9 * propwidth) - 64, notendturnimg)
     lvlup = button.Button(boardrect.centerx + 160, (9 * propwidth) - 64, lvlupimg)
+    sell = button.Button(boardrect.centerx, (9 * propwidth) - 64, sellimg)
 
     if game.started:
         font = pygame.font.Font(None, 36)
@@ -366,7 +371,7 @@ def draw_turn(game, myself: Player) -> None:
                         if myself.location == myself.nextlocation:
                             if buy.draw():
                                 myself.buy = True
-            # level up property
+            # level up / sell property
             elif game.propmap.inorder[myself.location].owned is not None:
                 if game.propmap.inorder[myself.location].owned == myself.id and not myself.buy:
                     if not myself.lvld and game.player_money[myself.id] >= game.propmap.inorder[myself.location].price:
@@ -374,15 +379,18 @@ def draw_turn(game, myself: Player) -> None:
                             if game.propmap.inorder[myself.location].level <= 5:
                                 font = pygame.font.Font(None, 32)
                                 lvltext = font.render(
-                                    f"for -${game.propmap.inorder[myself.location].price}?", True, (255, 0, 0))
+                                    f"for ${game.propmap.inorder[myself.location].price}?", True, (255, 0, 0))
                                 lvltextpos = text.get_rect()
                                 lvltextpos.centerx = lvlup.rect.centerx
                                 lvltextpos.centery = lvlup.rect.centery - 2 * lvltextpos.height
                                 screen.blit(lvltext, lvltextpos)
                                 if lvlup.draw():
                                     myself.lvlup = True
+                    if not myself.sell and not myself.sold and myself.location == myself.nextlocation:
+                        if sell.draw():
+                            myself.sell = True
         # show player transactions
-        if game.rent_paid:
+        if game.rent_paid and not game.players[game.turn].rolling:
             landed_on = game.propmap.inorder[game.goto_next]
             font = pygame.font.Font(None, 64)
             renttext = font.render(
