@@ -76,25 +76,11 @@ def threaded_client(conn, p, gameId):
                         if allready:
                             game.ready = True
                             game.start()
-                            game.players[game.turn].endturn = False
-                            game.players[game.turn].rolling = True
-                            game.players[game.turn].nextlocation = game.goto_next
                             print("ready gamers")
                     # game is started
                     else:
                         if game.players[game.turn].endturn and game.endturn:
                             game.play()
-                            game.leveled = False
-                            game.players[game.turn].endturn = False
-                            game.players[game.turn].rolling = True
-                            game.players[game.turn].nextlocation = game.goto_next
-                            game.players[game.turn].buy = False
-                            game.players[game.turn].bought = False
-                            game.players[game.turn].paid = False
-                            game.players[game.turn].lvlup = False
-                            game.players[game.turn].lvld = False
-                            game.players[game.turn].sell = False
-                            game.players[game.turn].sold = False
                         for player in game.players:
                             if game.turn == player.id and not player.rolling:
                                 if player.location == player.nextlocation:
@@ -147,6 +133,7 @@ def threaded_client(conn, p, gameId):
                                                 print(landed_on.rent)
                                                 game.player_money[game.turn] -= landed_on.price
                                                 game.leveled = True
+                                        # selling property
                                         if player.sell and not player.sold:
                                             player.sold = True
                                             if landed_on.level == 0:

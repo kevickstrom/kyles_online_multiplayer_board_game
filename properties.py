@@ -17,7 +17,7 @@ class Property:
         self.level = 0
         self.level_up_price = self.price
 
-        self.owned = None  # stores who owns the property. None for bank owned -1 means cannot be owned
+        self.owned = None  # stores id of who owns the property. None for bank owned, -1 means cannot be owned
         self.mortgaged = False
         self.spots = []  # holds (x,y) location of spots for the client to fill in
         self.next = None
@@ -33,18 +33,6 @@ class Property:
 
     def __repr__(self):
         return repr(f"Property({self.id}, {self.name}, {self.color}, {self.price})")
-
-    def add_house(self):
-        pass
-
-    def sell_house(self):
-        pass
-
-    def add_hotel(self):
-        pass
-
-    def sell_hotel(self):
-        pass
 
 
 class PropertyMap:

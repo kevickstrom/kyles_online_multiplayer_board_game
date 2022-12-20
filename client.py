@@ -253,7 +253,7 @@ def draw_ui(game, myself: Player) -> Player:
 
 def draw_players(game, myself: Player) -> None:
     """
-    Draws the players on the board
+    Draws the players on the board and their movement animations
     """
     global screen
     showroll = False
@@ -347,7 +347,8 @@ def draw_players(game, myself: Player) -> None:
 
 def draw_turn(game, myself: Player) -> None:
     """
-    Buttons on the board to end turn and buy property
+    Buttons on the board to end turn and buy / sell property
+    Also displays transaction texts
     """
     global screen
     buy = button.Button(boardrect.centerx + 160, (9 * propwidth) - 64, buyimg)
@@ -357,6 +358,7 @@ def draw_turn(game, myself: Player) -> None:
     sell = button.Button(boardrect.centerx, (9 * propwidth) - 64, sellimg)
 
     if game.started:
+        # display who's turn it is
         font = pygame.font.Font(None, 36)
         text = font.render(f"Turn: {game.players[game.turn].name}", True, (10, 10, 10))
         textpos = text.get_rect()
@@ -376,7 +378,7 @@ def draw_turn(game, myself: Player) -> None:
                 if game.propmap.inorder[myself.location].owned == myself.id and not myself.buy:
                     if not myself.lvld and game.player_money[myself.id] >= game.propmap.inorder[myself.location].price:
                         if myself.location == myself.nextlocation and game.propmap.inorder[myself.location].monopoly:
-                            if game.propmap.inorder[myself.location].level <= 5:
+                            if game.propmap.inorder[myself.location].level < 5:
                                 font = pygame.font.Font(None, 32)
                                 lvltext = font.render(
                                     f"for ${game.propmap.inorder[myself.location].price}?", True, (255, 0, 0))
@@ -389,7 +391,7 @@ def draw_turn(game, myself: Player) -> None:
                     if not myself.sell and not myself.sold and myself.location == myself.nextlocation:
                         if sell.draw():
                             myself.sell = True
-        # show player transactions
+        # show player to player transactions
         if game.rent_paid and not game.players[game.turn].rolling:
             landed_on = game.propmap.inorder[game.goto_next]
             font = pygame.font.Font(None, 64)
@@ -402,7 +404,7 @@ def draw_turn(game, myself: Player) -> None:
             renttextpos.centerx = boardrect.centerx - 200
             renttextpos.centery = boardrect.centery - 150
             screen.blit(renttext, renttextpos)
-        # show players leveling up properties
+        # show other players leveling up properties
         if game.leveled:
             font = pygame.font.Font(None, 32)
             lvltext = font.render(
@@ -425,9 +427,10 @@ def draw_turn(game, myself: Player) -> None:
 
 def roll_dice(x: int = -1, y: int = -1) -> None:
     """
-    Draws the dice
+    Draws the dice. Final faces (roll) are controlled server side
     """
     global screen
+    # show random faces
     if x == -1:
         num1 = random.randrange(0, 6)
         dice1 = faces[num1]
@@ -442,6 +445,7 @@ def roll_dice(x: int = -1, y: int = -1) -> None:
         dice2rect.centerx = boardrect.centerx + 25
         dice2rect.centery = boardrect.centery
         screen.blit(dice2, dice2rect)
+    # show final faces
     else:
         dice1 = faces[x]
         dice2 = faces[y]
@@ -461,13 +465,12 @@ def start_menu(playernum: int) -> Player:
     """
     Starting menu when the game is launched
     initializes and returns player - name, color
+    TODO: only display the available colors (not taken by another player)
     """
     user_text = ''
     input_rect = pygame.Rect(200, 200, 140, 32)
 
-    # gets active when input box is clicked by user
     color_active = pygame.Color('lightskyblue3')
-    # color of input box.
     color_passive = pygame.Color('grey')
     clock = pygame.time.Clock()
 

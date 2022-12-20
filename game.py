@@ -45,6 +45,10 @@ class Game:
               f"roll: {(self.lastroll[0] + 1, self.lastroll[1] + 1)}")
         self.goto_next = self.players[self.turn].location + d1 + d2 + 2
 
+        self.players[self.turn].endturn = False
+        self.players[self.turn].rolling = True
+        self.players[self.turn].nextlocation = self.goto_next
+
     def play(self):
         """
         plays the game
@@ -68,6 +72,18 @@ class Game:
             nextloc = nextloc - 32
             self.collect_go = True
         self.goto_next = nextloc
+
+        self.leveled = False
+        self.players[self.turn].endturn = False
+        self.players[self.turn].rolling = True
+        self.players[self.turn].nextlocation = self.goto_next
+        self.players[self.turn].buy = False
+        self.players[self.turn].bought = False
+        self.players[self.turn].paid = False
+        self.players[self.turn].lvlup = False
+        self.players[self.turn].lvld = False
+        self.players[self.turn].sell = False
+        self.players[self.turn].sold = False
 
     def add_player(self, player):
         self.players.append(player)
