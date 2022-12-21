@@ -46,6 +46,16 @@ notendturnimg = pygame.image.load(os.path.join('assets', "notendturn.png"))
 buyimg = pygame.image.load(os.path.join('assets', "buy.png"))
 lvlupimg = pygame.image.load(os.path.join('assets', "levelup.png"))
 sellimg = pygame.image.load(os.path.join('assets', "sell.png"))
+notsellimg = pygame.image.load(os.path.join('assets', "notsell.png"))
+leveldownimg = pygame.image.load(os.path.join('assets', "leveldown.png"))
+notleveldownimg = pygame.image.load(os.path.join('assets', "notleveldown.png"))
+mortgageimg = pygame.image.load(os.path.join('assets', "mortgage.png"))
+notmortgageimg = pygame.image.load(os.path.join('assets', "notmortgage.png"))
+confirmimg = pygame.image.load(os.path.join('assets', "confirm.png"))
+
+# almostlose background
+almostloseimg = pygame.image.load(os.path.join('assets', "almostlose.png"))
+almostloseimg = pygame.transform.smoothscale(almostloseimg, (HEIGHT, HEIGHT))
 
 # property level images
 lvlimg = [pygame.image.load(os.path.join('assets', "lvl0.png")), pygame.image.load(os.path.join('assets', "lvl1.png")),
@@ -425,6 +435,63 @@ def draw_turn(game, myself: Player) -> None:
                 pass
 
 
+def draw_almostlose(game, myself):
+    """
+    Draws the selling / mortgage property tab because you almost lost
+    """
+    almostlosebckgrnd = button.Button(WIDTH // 2, HEIGHT // 2, almostloseimg)
+    almostlosebckgrnd.draw()
+    font = pygame.font.Font(None, 64)
+    header = font.render("Wow! You almost lost...", True, (255, 255, 255))
+    headerpos = header.get_rect()
+    headerpos.centerx = WIDTH // 2
+    headerpos.centery = propwidth
+    screen.blit(header, headerpos)
+    myprops = []
+    for props in game.propmap.inorder:
+        if props.owned == myself.id:
+            myprops.append(props)
+
+    font = pygame.font.Font(None, 32)
+    for i in range(len(myprops)):
+        owned_prop = font.render(f"{myprops[i].name}    lvl:{myprops[i].level}", True, (0, 0, 0))
+        owned_prop_pos = owned_prop.get_rect()
+        owned_prop_pos.x = WIDTH // 2 - headerpos.width
+        owned_prop_pos.centery = (2 * propwidth) + i * (propwidth//2)
+        screen.blit(owned_prop, owned_prop_pos)
+
+        sellprice = font.render(f"+${myprops[i].price * (myprops[i].level + 1)}", True, (60, 179, 113))
+        sellprice_pos = sellprice.get_rect()
+        sellprice_pos.centerx = WIDTH // 2 + 32
+        sellprice_pos.centery = (2 * propwidth) + i * (propwidth // 2)
+        screen.blit(sellprice, sellprice_pos)
+
+        if myprops[i].level > 0:
+            lvldownbutton = button.Button(WIDTH // 2 - 64, (2 * propwidth) + i * (propwidth//2), leveldownimg, 0.75)
+            lvldownprice = font.render(f"+${myprops[i].price}", True, (60, 179, 113))
+            lvldownprice_pos = sellprice.get_rect()
+            lvldownprice_pos.x = WIDTH // 2 - 64 - 2 * lvldownprice_pos.width
+            lvldownprice_pos.centery = (2 * propwidth) + i * (propwidth // 2)
+            screen.blit(lvldownprice, lvldownprice_pos)
+            if lvldownbutton.draw():
+                pass
+        else:
+            notlvldownbutton = button.Button(WIDTH // 2 - 64, (2 * propwidth) + i * (propwidth // 2),
+                                             notleveldownimg, 0.75)
+            if notlvldownbutton.draw():
+                pass
+        sellbutton = button.Button(WIDTH // 2 + 128, (2 * propwidth) + i * (propwidth // 2), sellimg, 0.75)
+        if sellbutton.draw():
+            pass
+
+
+def draw_auction_prop(game, myself: Player, prop: Property):
+    """
+    TODO: write auction drawing
+    """
+    pass
+
+
 def roll_dice(x: int = -1, y: int = -1) -> None:
     """
     Draws the dice. Final faces (roll) are controlled server side
@@ -625,6 +692,9 @@ def main():
         myself = draw_ui(game, myself)
         draw_players(game, myself)
         draw_turn(game, myself)
+        # testing
+        if game.started:
+            draw_almostlose(game, myself)
         if roll:
             if stop_roll:
                 roll = False
