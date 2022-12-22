@@ -16,6 +16,7 @@ class Property:
         self.monopoly = False
         self.level = 0
         self.level_up_price = self.price
+        self.leveldown = 0
 
         self.owned = None  # stores id of who owns the property. None for bank owned, -1 means cannot be owned
         self.mortgaged = False
@@ -27,9 +28,19 @@ class Property:
         self.owned = owner_id
         self.rent = self.price // 4
 
+    def sell(self):
+        self.owned = None
+        self.rent = self.price
+        self.level = 0
+        self.leveldown = 0
+
     def level_up(self):
         self.level += 1
         self.rent = 2 * self.rent
+
+    def level_down(self, levels: int):
+        self.level -= levels
+        self.rent = self.price * (self.level + 1)
 
     def __repr__(self):
         return repr(f"Property({self.id}, {self.name}, {self.color}, {self.price})")

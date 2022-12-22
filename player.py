@@ -11,6 +11,7 @@ class Player:
         self._money = 1500
         self._properties = []
         self.ready = False
+        self.lost = False
 
         self.location = None  # id of the current location
         self.spot = 0
@@ -22,6 +23,11 @@ class Player:
         self.paid = False
         self.sell = False
         self.sold = False
+
+        self.almostlose = False
+        self.tosell = []
+        self.leveldown = {}
+        self.confirm = False
 
         self.lvlup = False
         self.lvld = False

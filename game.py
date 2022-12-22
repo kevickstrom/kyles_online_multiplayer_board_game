@@ -59,6 +59,9 @@ class Game:
         else:
             self.turn += 1
 
+        if self.players[self.turn].lost:
+            self.play()
+
         self.rolling = True
         self.endturn = False
         self.rent_paid = False

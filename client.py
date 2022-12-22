@@ -52,6 +52,8 @@ notleveldownimg = pygame.image.load(os.path.join('assets', "notleveldown.png"))
 mortgageimg = pygame.image.load(os.path.join('assets', "mortgage.png"))
 notmortgageimg = pygame.image.load(os.path.join('assets', "notmortgage.png"))
 confirmimg = pygame.image.load(os.path.join('assets', "confirm.png"))
+cancelimg = pygame.image.load(os.path.join('assets', "cancel.png"))
+notcancelimg = pygame.image.load(os.path.join('assets', "notcancel.png"))
 
 # almostlose background
 almostloseimg = pygame.image.load(os.path.join('assets', "almostlose.png"))
@@ -350,7 +352,7 @@ def draw_players(game, myself: Player) -> None:
             player.moving = False
             player.location = player.nextlocation
             player.spot = player.nextspot
-        else:
+        elif not player.lost:
             pygame.draw.circle(screen, (0, 0, 0), properties.inorder[player.location].spots[player.spot], 12)
             pygame.draw.circle(screen, player.color, properties.inorder[player.location].spots[player.spot], 10)
 
@@ -441,6 +443,8 @@ def draw_almostlose(game, myself):
     """
     almostlosebckgrnd = button.Button(WIDTH // 2, HEIGHT // 2, almostloseimg)
     almostlosebckgrnd.draw()
+    confirmbutton = button.Button((WIDTH // 2) + 128, HEIGHT - 96, confirmimg)
+    cancelbutton = button.Button((WIDTH // 2) - 32, HEIGHT - 96, cancelimg)
     font = pygame.font.Font(None, 64)
     header = font.render("Wow! You almost lost...", True, (255, 255, 255))
     headerpos = header.get_rect()
@@ -474,15 +478,52 @@ def draw_almostlose(game, myself):
             lvldownprice_pos.centery = (2 * propwidth) + i * (propwidth // 2)
             screen.blit(lvldownprice, lvldownprice_pos)
             if lvldownbutton.draw():
-                pass
+                if myprops[i].id in myself.leveldown:
+                    myself.leveldown[myprops[i].id] = myself.leveldown[myprops[i].id] + 1
+                else:
+                    myself.leveldown[myprops[i].id] = myprops[i].leveldown + 1
         else:
             notlvldownbutton = button.Button(WIDTH // 2 - 64, (2 * propwidth) + i * (propwidth // 2),
                                              notleveldownimg, 0.75)
             if notlvldownbutton.draw():
                 pass
-        sellbutton = button.Button(WIDTH // 2 + 128, (2 * propwidth) + i * (propwidth // 2), sellimg, 0.75)
-        if sellbutton.draw():
-            pass
+        networth = 0
+        if myprops[i].id in myself.tosell:
+            notsellbutton = button.Button(WIDTH // 2 + 128, (2 * propwidth) + i * (propwidth // 2), notsellimg, 0.75)
+            if notsellbutton.draw():
+                pass
+            addprice = font.render(f"+${myprops[i].price * (myprops[i].level + 1)}", True, (60, 179, 113))
+            newpos = addprice.get_rect()
+            newpos.centerx = WIDTH // 2 + almostlosebckgrnd.rect.width//2 - addprice.get_width()
+            newpos.centery = (2 * propwidth) + i * (propwidth // 2)
+            screen.blit(addprice, newpos)
+            networth += myprops[i].price * (myprops[i].level + 1)
+        else:
+            sellbutton = button.Button(WIDTH // 2 + 128, (2 * propwidth) + i * (propwidth // 2), sellimg, 0.75)
+            if sellbutton.draw():
+                myself.tosell.append(myprops[i].id)
+        if myprops[i].id in myself.leveldown.items():
+            addprice = font.render(f"+${myprops[i].price * myself.leveldow[myprops[i].id]}", True, (60, 179, 113))
+            newpos = addprice.get_rect()
+            newpos.centerx = WIDTH // 2 + almostlosebckgrnd.rect.width // 2 - addprice.get_width()
+            newpos.centery = (2 * propwidth) + i * (propwidth // 2)
+            screen.blit(addprice, newpos)
+            networth += myprops[i].price * myself.leveldow[myprops[i].id]
+        if game.player_money[myself.id] + networth > 0:
+            newtotal = font.render(f"New Total: ${game.player_money[myself.id] + networth}", True, (60, 179, 113))
+        else:
+            newtotal = font.render(f"New Total: ${game.player_money[myself.id] + networth}", True, (255, 0, 0))
+        newtotalpos = newtotal.get_rect()
+        newtotalpos.centerx = WIDTH // 2 + almostlosebckgrnd.rect.width // 2 - newtotal.get_width()
+        newtotalpos.centery = HEIGHT - 96
+        screen.blit(newtotal, newtotalpos)
+
+        if game.player_money[myself.id] + networth > 0:
+            if confirmbutton.draw():
+                myself.confirm = True
+        if cancelbutton.draw():
+            myself.tosell = []
+            myself.leveldown = {}
 
 
 def draw_auction_prop(game, myself: Player, prop: Property):
@@ -693,7 +734,7 @@ def main():
         draw_players(game, myself)
         draw_turn(game, myself)
         # testing
-        if game.started:
+        if myself.almostlose:
             draw_almostlose(game, myself)
         if roll:
             if stop_roll:
