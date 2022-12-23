@@ -429,7 +429,7 @@ def draw_turn(game, myself: Player) -> None:
             lvltextpos.centery = boardrect.centery - 150
             screen.blit(lvltext, lvltextpos)
         # end turn buttons
-        if not myself.endturn and myself.location == myself.nextlocation and not myself.rolling:
+        if not myself.endturn and myself.location == myself.nextlocation and not myself.rolling and not myself.lost:
             if endturn.draw():
                 myself.endturn = True
         else:
@@ -451,11 +451,14 @@ def draw_almostlose(game, myself):
     headerpos.centerx = WIDTH // 2
     headerpos.centery = propwidth
     screen.blit(header, headerpos)
+    # used to tally all sold / level down $$$ to make sure it pays off debt
+    networth = 0
+    # find all owned properties
     myprops = []
     for props in game.propmap.inorder:
         if props.owned == myself.id:
             myprops.append(props)
-
+    # list all properties and ther level
     font = pygame.font.Font(None, 32)
     for i in range(len(myprops)):
         owned_prop = font.render(f"{myprops[i].name}    lvl:{myprops[i].level}", True, (0, 0, 0))
@@ -463,31 +466,64 @@ def draw_almostlose(game, myself):
         owned_prop_pos.x = WIDTH // 2 - headerpos.width
         owned_prop_pos.centery = (2 * propwidth) + i * (propwidth//2)
         screen.blit(owned_prop, owned_prop_pos)
-
+        # list the price they will sell for
         sellprice = font.render(f"+${myprops[i].price * (myprops[i].level + 1)}", True, (60, 179, 113))
         sellprice_pos = sellprice.get_rect()
         sellprice_pos.centerx = WIDTH // 2 + 32
         sellprice_pos.centery = (2 * propwidth) + i * (propwidth // 2)
         screen.blit(sellprice, sellprice_pos)
+        # list the price for one level down if applicable
+        # show the leveling down button
 
-        if myprops[i].level > 0:
-            lvldownbutton = button.Button(WIDTH // 2 - 64, (2 * propwidth) + i * (propwidth//2), leveldownimg, 0.75)
+        if myprops[i].id in myself.leveldown.keys():
+            # show button if we can still level down
+            if myprops[i].level - myself.leveldown[myprops[i].id] > 1:
+                lvldownbutton = button.Button(WIDTH // 2 - 64, (2 * propwidth) + i * (propwidth // 2), leveldownimg,
+                                              0.75)
+                lvldownprice = font.render(f"+${myprops[i].price}", True, (60, 179, 113))
+                lvldownprice_pos = lvldownprice.get_rect()
+                lvldownprice_pos.x = WIDTH // 2 - 64 - 2 * lvldownprice_pos.width
+                lvldownprice_pos.centery = (2 * propwidth) + i * (propwidth // 2)
+                screen.blit(lvldownprice, lvldownprice_pos)
+                if lvldownbutton.draw():
+                    myself.leveldown[myprops[i].id] = myself.leveldown[myprops[i].id] + 1
+                    time.sleep(0.2)
+            # show how many levels to drop
+            lvls = font.render(f"-{myself.leveldown[myprops[i].id]} lvls", True, (60, 179, 113))
+            lvls_pos = lvls.get_rect()
+            lvls_pos.centerx = WIDTH // 2 + almostlosebckgrnd.rect.width//2 - (3*lvls.get_width())
+            lvls_pos.centery = (2 * propwidth) + i * (propwidth // 2)
+            screen.blit(lvls, lvls_pos)
+            # show $$$ from leveling down on the right side
+            addprice = font.render(f"+${myprops[i].price * myself.leveldown[myprops[i].id]}", True, (60, 179, 113))
+            newpos = addprice.get_rect()
+            newpos.centerx = WIDTH // 2 + almostlosebckgrnd.rect.width // 2 - addprice.get_width()
+            newpos.centery = (2 * propwidth) + i * (propwidth // 2)
+            screen.blit(addprice, newpos)
+            # tally $$$
+            networth += myprops[i].price * myself.leveldown[myprops[i].id]
+
+        elif myprops[i].level > 1:
+            # show level down button
+            lvldownbutton = button.Button(WIDTH // 2 - 64, (2 * propwidth) + i * (propwidth // 2), leveldownimg,
+                                          0.75)
             lvldownprice = font.render(f"+${myprops[i].price}", True, (60, 179, 113))
-            lvldownprice_pos = sellprice.get_rect()
+            lvldownprice_pos = lvldownprice.get_rect()
             lvldownprice_pos.x = WIDTH // 2 - 64 - 2 * lvldownprice_pos.width
             lvldownprice_pos.centery = (2 * propwidth) + i * (propwidth // 2)
             screen.blit(lvldownprice, lvldownprice_pos)
             if lvldownbutton.draw():
-                if myprops[i].id in myself.leveldown:
-                    myself.leveldown[myprops[i].id] = myself.leveldown[myprops[i].id] + 1
-                else:
-                    myself.leveldown[myprops[i].id] = myprops[i].leveldown + 1
+                myself.leveldown[myprops[i].id] = 1
+                time.sleep(0.2)
+
         else:
+            # show the grayed out button
             notlvldownbutton = button.Button(WIDTH // 2 - 64, (2 * propwidth) + i * (propwidth // 2),
                                              notleveldownimg, 0.75)
             if notlvldownbutton.draw():
                 pass
-        networth = 0
+        # check if current items are enough to remain in the game
+        # show grayed sell button
         if myprops[i].id in myself.tosell:
             notsellbutton = button.Button(WIDTH // 2 + 128, (2 * propwidth) + i * (propwidth // 2), notsellimg, 0.75)
             if notsellbutton.draw():
@@ -499,31 +535,28 @@ def draw_almostlose(game, myself):
             screen.blit(addprice, newpos)
             networth += myprops[i].price * (myprops[i].level + 1)
         else:
+            # show sell button
             sellbutton = button.Button(WIDTH // 2 + 128, (2 * propwidth) + i * (propwidth // 2), sellimg, 0.75)
             if sellbutton.draw():
                 myself.tosell.append(myprops[i].id)
-        if myprops[i].id in myself.leveldown.items():
-            addprice = font.render(f"+${myprops[i].price * myself.leveldow[myprops[i].id]}", True, (60, 179, 113))
-            newpos = addprice.get_rect()
-            newpos.centerx = WIDTH // 2 + almostlosebckgrnd.rect.width // 2 - addprice.get_width()
-            newpos.centery = (2 * propwidth) + i * (propwidth // 2)
-            screen.blit(addprice, newpos)
-            networth += myprops[i].price * myself.leveldow[myprops[i].id]
-        if game.player_money[myself.id] + networth > 0:
-            newtotal = font.render(f"New Total: ${game.player_money[myself.id] + networth}", True, (60, 179, 113))
-        else:
-            newtotal = font.render(f"New Total: ${game.player_money[myself.id] + networth}", True, (255, 0, 0))
-        newtotalpos = newtotal.get_rect()
-        newtotalpos.centerx = WIDTH // 2 + almostlosebckgrnd.rect.width // 2 - newtotal.get_width()
-        newtotalpos.centery = HEIGHT - 96
-        screen.blit(newtotal, newtotalpos)
+        # if $ is enough show total in green ( $ > 0 )
+    if game.player_money[myself.id] + networth > 0:
+        newtotal = font.render(f"New Total: ${game.player_money[myself.id] + networth}", True, (60, 179, 113))
+        # allow player to confirm
+        if confirmbutton.draw():
+            myself.confirm = True
+    else:
+        # show total in red ( < $0 )
+        newtotal = font.render(f"New Total: ${game.player_money[myself.id] + networth}", True, (255, 0, 0))
+    newtotalpos = newtotal.get_rect()
+    newtotalpos.centerx = WIDTH // 2 + almostlosebckgrnd.rect.width // 2 - newtotal.get_width()
+    newtotalpos.centery = HEIGHT - 96
+    screen.blit(newtotal, newtotalpos)
 
-        if game.player_money[myself.id] + networth > 0:
-            if confirmbutton.draw():
-                myself.confirm = True
-        if cancelbutton.draw():
-            myself.tosell = []
-            myself.leveldown = {}
+    # restart selling / leveling down
+    if cancelbutton.draw():
+        myself.tosell = []
+        myself.leveldown = {}
 
 
 def draw_auction_prop(game, myself: Player, prop: Property):

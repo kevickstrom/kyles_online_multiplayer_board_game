@@ -61,6 +61,7 @@ class Game:
 
         if self.players[self.turn].lost:
             self.play()
+            return
 
         self.rolling = True
         self.endturn = False

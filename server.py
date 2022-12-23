@@ -156,30 +156,31 @@ def threaded_client(conn, p, gameId):
                                     for prop in game.propmap.inorder:
                                         if prop.owned == player.id:
                                             playerprops.append(prop)
+                                    # tally $ from selling / leveling down and check if player can't recover
+                                    # sell off all property if lost
                                     networth = 0
                                     for prop in playerprops:
                                         networth += prop.price * (prop.level + 1)
                                     if game.player_money[player.id] + networth < 0:
-                                        # player loses game
                                         player.lost = True
                                         player.almostlose = False
                                         for prop in playerprops:
                                             prop.sell()
                                         game.player_money[player.id] = 0
                                     else:
+                                        # player can recover by selling and/or leveling down
                                         player.almostlose = True
                                     if player.confirm:
-                                        print("confrim")
-                                        for prop in player.leveldown.keys():
-                                            print("in dict")
-                                            game.propmap.inorder[prop].level_down(player.leveldown[prop])
-                                            game.player_money[player.id] += prop.price * player.leveldown[prop]
+                                        # check what the player wants to level down and sell
+                                        for propid in player.leveldown.keys():
+                                            prop = game.propmap.inorder[propid]
+                                            game.propmap.inorder[propid].level_down(player.leveldown[propid])
+                                            game.player_money[player.id] += prop.price * player.leveldown[propid]
                                         for propid in player.tosell:
-                                            print("in tosell")
                                             prop = game.propmap.inorder[propid]
                                             game.player_money[player.id] += prop.price * (prop.level + 1)
                                             prop.sell()
-                                            print(game.player_money[player.id])
+                                        # reset vars
                                         player.tosell = []
                                         player.leveldown = {}
                                         player.confirm = False
