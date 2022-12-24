@@ -85,6 +85,9 @@ for i in range(0, 8):
         (WIDTH - (2 * propwidth) - (i * propwidth) + xshift1, HEIGHT - propheight // 2 + 30))
     if i != 0 and i != 4:
         properties.inorder[i].price_pos = (WIDTH - (3 * propwidth) // 2 - (i * propwidth), HEIGHT - propheight // 6)
+    elif i == 4:
+        properties.inorder[i].price_pos = (WIDTH - (3 * propwidth) // 2 - (i * propwidth), HEIGHT - propheight // 15)
+
 # jail corner
 properties.inorder[8].spots.append((WIDTH - (10 * propwidth) - 20, HEIGHT - propheight // 2))
 properties.inorder[8].spots.append((WIDTH - (10 * propwidth) - 20 + xshift1, HEIGHT - propheight // 2))
@@ -104,6 +107,10 @@ for i in range(9, 17):
     if i != 12 and i != 14 and i != 16:
         properties.inorder[i].price_pos = (WIDTH - (11 * propwidth) + propheight // 2,
                                            HEIGHT - propheight - (inc * propwidth) - propwidth // 4)
+    # bus 2
+    if i == 14:
+        properties.inorder[i].price_pos = (WIDTH - (11 * propwidth) + 30,
+                                           HEIGHT - propheight - (inc * propwidth) - (13*propwidth) // 16)
     inc += 1
 # top side including right corner
 inc = 0
@@ -119,6 +126,10 @@ for i in range(17, 25):
     if i != 18 and i != 20 and i != 24:
         properties.inorder[i].price_pos = (WIDTH - (9 * propwidth) + (inc * propwidth) + propwidth // 2,
                                            HEIGHT - (5 * propheight) + propheight // 8)
+    # bus 3
+    elif i == 18:
+        properties.inorder[i].price_pos = (WIDTH - (9 * propwidth) + (inc * propwidth) + propwidth // 2,
+                                           HEIGHT - (5 * propheight) + propheight//2 - 15)
     inc += 1
 # right side not including any corners
 inc = 0
@@ -134,6 +145,10 @@ for i in range(25, 32):
     if i != 25 and i != 28:
         properties.inorder[i].price_pos = (WIDTH - propheight // 2,
                                            propheight + propwidth // 2 + (inc * propwidth) + propwidth // 3)
+    elif i == 25:
+        properties.inorder[i].price_pos = (WIDTH - 30,
+                                           propheight + propwidth // 6)
+
     inc += 1
 
 
@@ -170,41 +185,97 @@ def draw_board(game=None) -> None:
                     pygame.draw.rect(screen, color, pygame.Rect(WIDTH - 2 * propwidth - i * propwidth,
                                                                 HEIGHT - propheight, propwidth, propheight // 4))
                     screen.blit(lvlimg[locationlvl], (WIDTH - 2 * propwidth - i * propwidth, HEIGHT - propheight))
+                # bus 1
+                elif i == 4:
+                    # bottom line
+                    pygame.draw.line(screen, color, (WIDTH - 5*propwidth, HEIGHT),
+                                     (WIDTH - 6*propwidth, HEIGHT), 10)
+                    # left line
+                    pygame.draw.line(screen, color, (WIDTH - 6 * propwidth, HEIGHT),
+                                     (WIDTH - 6 * propwidth, HEIGHT - propheight - 2), 10)
+                    # top line
+                    pygame.draw.line(screen, color, (WIDTH - 6 * propwidth, HEIGHT - propheight),
+                                     (WIDTH - 5 * propwidth, HEIGHT - propheight), 10)
+                    # right line
+                    pygame.draw.line(screen, color, (WIDTH - 5 * propwidth, HEIGHT - propheight - 2),
+                                     (WIDTH - 5 * propwidth, HEIGHT), 10)
                 # blues
-                if 5 <= i <= 7:
+                elif 5 <= i <= 7:
                     pygame.draw.rect(screen, color, pygame.Rect(WIDTH - 2 * propwidth - i * propwidth,
                                                                 HEIGHT - propheight, propwidth, propheight // 4))
                     screen.blit(lvlimg[locationlvl], (WIDTH - 2 * propwidth - i * propwidth, HEIGHT - propheight))
                 # pinks
-                if 9 <= i <= 11:
+                elif 9 <= i <= 11:
                     pygame.draw.rect(screen, color, pygame.Rect(WIDTH - 9 * propwidth - propheight // 4,
                                                                 HEIGHT - propheight - (i - 8) * propwidth,
                                                                 propheight // 4, propwidth))
                     screen.blit(lvlimg[locationlvl], (WIDTH - 9 * propwidth - propheight // 4,
                                                      HEIGHT - propheight - (i - 8) * propwidth))
                 # oranges
-                if i == 13 or i == 15:
+                elif i == 13 or i == 15:
                     pygame.draw.rect(screen, color, pygame.Rect(WIDTH - 9 * propwidth - propheight // 4,
                                                                 HEIGHT - propheight - (i - 8) * propwidth,
                                                                 propheight // 4, propwidth))
                     screen.blit(lvlimg[locationlvl], (WIDTH - 9 * propwidth - propheight // 4,
                                                      HEIGHT - propheight - (i - 8) * propwidth))
+                # bus 2
+                elif i == 14:
+                    # bottom line
+                    pygame.draw.line(screen, color, (WIDTH - boardrect.width + propheight, HEIGHT - 7*propwidth),
+                                     (WIDTH - boardrect.width, HEIGHT - 7*propwidth), 10)
+                    # left line
+                    pygame.draw.line(screen, color, (WIDTH - boardrect.width, HEIGHT - 7*propwidth),
+                                     (WIDTH - boardrect.width, HEIGHT - 8*propwidth), 10)
+                    # top line
+                    pygame.draw.line(screen, color, (WIDTH - boardrect.width, HEIGHT - 8*propwidth),
+                                     (WIDTH - boardrect.width + propheight, HEIGHT - 8*propwidth), 10)
+                    # right line
+                    pygame.draw.line(screen, color, (WIDTH - boardrect.width + propheight, HEIGHT - 8*propwidth),
+                                     (WIDTH - boardrect.width + propheight, HEIGHT - 7*propwidth), 10)
                 # reds
-                if i == 17 or i == 19:
+                elif i == 17 or i == 19:
                     pygame.draw.rect(screen, color, pygame.Rect(WIDTH - 9 * propwidth + (i - 17) * propwidth,
                                                                 propheight - propheight // 4,
                                                                 propwidth, propheight // 4))
                     screen.blit(lvlimg[locationlvl], (WIDTH - 9 * propwidth + (i - 17) * propwidth,
                                                      propheight - propheight // 4))
+                # bus 3
+                elif i == 18:
+                    # bottom line
+                    pygame.draw.line(screen, color, (WIDTH - boardrect.width + 4*propwidth, HEIGHT - boardrect.height + propheight),
+                                     (WIDTH - boardrect.width + 3*propwidth, HEIGHT - boardrect.height + propheight), 10)
+                    # left line
+                    pygame.draw.line(screen, color, (WIDTH - boardrect.width + 3*propwidth, HEIGHT - boardrect.height + propheight),
+                                     (WIDTH - boardrect.width + 3*propwidth, HEIGHT - boardrect.height), 10)
+                    # top line
+                    pygame.draw.line(screen, color, (WIDTH - boardrect.width + 3*propwidth, HEIGHT - boardrect.height),
+                                     (WIDTH - boardrect.width + 4*propwidth, HEIGHT - boardrect.height), 10)
+                    # right line
+                    pygame.draw.line(screen, color, (WIDTH - boardrect.width + 4*propwidth, HEIGHT - boardrect.height),
+                                     (WIDTH - boardrect.width + 4*propwidth, HEIGHT - boardrect.height + propheight), 10)
                 # yellows
-                if 20 <= i <= 23:
+                elif 20 <= i <= 23:
                     pygame.draw.rect(screen, color, pygame.Rect(WIDTH - 9 * propwidth + (i - 17) * propwidth,
                                                                 propheight - propheight // 4,
                                                                 propwidth, propheight // 4))
                     screen.blit(lvlimg[locationlvl], (WIDTH - 9 * propwidth + (i - 17) * propwidth,
                                                      propheight - propheight // 4))
+                # bus 4
+                elif i == 25:
+                    # bottom line
+                    pygame.draw.line(screen, color, (WIDTH, HEIGHT - boardrect.height + propheight + propwidth),
+                                     (WIDTH - propheight, HEIGHT - boardrect.height + propheight + propwidth), 10)
+                    # left line
+                    pygame.draw.line(screen, color, (WIDTH - propheight, HEIGHT - boardrect.height + propheight + propwidth),
+                                     (WIDTH - propheight, HEIGHT - boardrect.height + propheight), 10)
+                    # top line
+                    pygame.draw.line(screen, color, (WIDTH - propheight, HEIGHT - boardrect.height + propheight),
+                                     (WIDTH, HEIGHT - boardrect.height + propheight), 10)
+                    # right line
+                    pygame.draw.line(screen, color, (WIDTH, HEIGHT - boardrect.height + propheight),
+                                     (WIDTH, HEIGHT - boardrect.height + propheight + propwidth), 10)
                 # greens and purples
-                if i == 26 or i == 27 or i == 29 or i == 31:
+                elif i == 26 or i == 27 or i == 29 or i == 31:
                     pygame.draw.rect(screen, color, pygame.Rect(WIDTH - propheight,
                                                                 3 * propwidth + (i - 26) * propwidth,
                                                                 propheight // 4, propwidth))
@@ -602,7 +673,7 @@ def roll_dice(x: int = -1, y: int = -1) -> None:
         screen.blit(dice2, dice2rect)
 
 
-def start_menu(playernum: int) -> Player:
+def start_menu(playernum: int, network: Network) -> Player:
     """
     Starting menu when the game is launched
     initializes and returns player - name, color
@@ -655,11 +726,11 @@ def start_menu(playernum: int) -> Player:
                 left_button.image = faces[choice - 1]
                 right_button.image = faces[choice + 1]
                 time.sleep(0.2)
-        if choice < 5:
+        if choice < len(color_choices) - 1:
             if right_button.draw():
                 choice += 1
                 left_button.image = faces[choice - 1]
-                if choice < 5:
+                if choice < len(color_choices) - 1:
                     right_button.image = faces[choice + 1]
                 time.sleep(0.2)
         color_text_surface = base_font.render("Choose a color:", True, (255, 255, 255))
@@ -734,7 +805,7 @@ def main():
         # start menu
         if firststart:
             firststart = False
-            myself = start_menu(playernum)
+            myself = start_menu(playernum, n)
             n.update(myself)
 
         # update game

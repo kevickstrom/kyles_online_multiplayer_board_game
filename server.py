@@ -36,21 +36,23 @@ def threaded_client(conn, p, gameId):
     while not selected:
         # receive filled out player class
         try:
-            player = pickle.loads(conn.recv(2048 * 4))
+            player = pickle.loads(conn.recv(2048 * 32))
             if gameId in games:
                 game = games[gameId]
-
-                conn.send(pickle.dumps(game))
                 if player:
                     game.add_player(player)
+                    game.color_pick.remove(player.color)
                     selected = True
+
+                conn.sendall(pickle.dumps(game))
+                print("sent")
         except:
             pass
 
     while True:
         try:
             # receive data from client
-            data = pickle.loads(conn.recv(2048 * 4))
+            data = pickle.loads(conn.recv(2048 * 8))
 
             if gameId in games:
                 game = games[gameId]
@@ -104,6 +106,7 @@ def threaded_client(conn, p, gameId):
                                     color = game.propmap.inorder[player.location].color
                                     group = []
                                     monopolized = False
+                                    bus = 0
                                     for i in range(len(game.propmap.inorder)):
                                         if game.propmap.inorder[i].color == color:
                                             group.append(game.propmap.inorder[i])
@@ -120,6 +123,13 @@ def threaded_client(conn, p, gameId):
                                                 prop.monopoly = True
                                                 prop.level += 1
                                                 prop.rent = 2*prop.rent
+                                    for prop in group:
+                                        if prop.color == "bus" and prop.owned == player.id:
+                                            bus += 1
+                                    if bus > 0:
+                                        for prop in group:
+                                            if prop.owned == player.id:
+                                                prop.rent = bus*(prop.price//2)
                                     player.bought = True
                                 # level up property
                                 if landed_on.owned is not None:

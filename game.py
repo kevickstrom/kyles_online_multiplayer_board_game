@@ -21,8 +21,11 @@ class Game:
         self.rolling = False
         self.endturn = False
         self.lastroll = (0, 0)
+        self.double = 0
         self.goto_next = 0
         self.rent_paid = False
+
+        self.color_pick = ["RED", "GREEN", "BLUE", "YELLOW", "CYAN", "MAGENTA"]
 
     def start(self):
         """
@@ -40,6 +43,8 @@ class Game:
         self.rolling = True
         d1 = random.randrange(0, 6)
         d2 = random.randrange(0, 6)
+        if d1 == d2:
+            self.double += 1
         self.lastroll = (d1, d2)
         print(f"first turn: {self.players[firstturn].color}, id {self.players[self.turn].id}, "
               f"roll: {(self.lastroll[0] + 1, self.lastroll[1] + 1)}")
@@ -54,10 +59,13 @@ class Game:
         plays the game
         :return:
         """
-        if self.turn == len(self.players) - 1:
-            self.turn = 0
-        else:
-            self.turn += 1
+        if self.double == 3:
+            self.double = 0
+        elif self.double == 0:
+            if self.turn == len(self.players) - 1:
+                self.turn = 0
+            else:
+                self.turn += 1
 
         if self.players[self.turn].lost:
             self.play()
@@ -68,6 +76,8 @@ class Game:
         self.rent_paid = False
         d1 = random.randrange(0, 6)
         d2 = random.randrange(0, 6)
+        if d1 == d2:
+            self.double += 1
         self.lastroll = (d1, d2)
         print(f"turn: {self.players[self.turn].color}, id {self.players[self.turn].id},"
               f" roll: {(self.lastroll[0] + 1, self.lastroll[1] + 1)}")
