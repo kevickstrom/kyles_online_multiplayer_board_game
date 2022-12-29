@@ -85,6 +85,12 @@ def threaded_client(conn, p, gameId):
                             game.play()
                         for player in game.players:
                             if game.turn == player.id and not player.rolling:
+                                if player.moving and not game.moved:
+                                    game.moving = True
+                                for otherplayers in game.players:
+                                    if not otherplayers.showmoving:
+                                        game.moving = False
+                                        game.moved = True
                                 if player.location == player.nextlocation:
                                     game.rolling = False
                                 if player.endturn:
@@ -93,7 +99,7 @@ def threaded_client(conn, p, gameId):
                                     game.collect_go = False
                                     game.player_money[game.turn] += 200
                                 landed_on = game.propmap.inorder[game.goto_next]
-                                if landed_on.owned is not None and landed_on.owned != player.id and not player.paid:
+                                if landed_on.owned is not None and landed_on.owned != player.id and not game.rent_paid:
                                     if not player.rolling and landed_on.owned > -1:
                                         game.rent_paid = True
                                         player.paid = True
@@ -146,10 +152,7 @@ def threaded_client(conn, p, gameId):
                                         # selling property
                                         if player.sell and not player.sold:
                                             player.sold = True
-                                            if landed_on.level == 0:
-                                                game.player_money[game.turn] += landed_on.price
-                                            else:
-                                                game.player_money[game.turn] += landed_on.price * landed_on.level
+                                            game.player_money[game.turn] += landed_on.price * (landed_on.level + 1)
                                             landed_on.owned = None
                                             landed_on.level = 0
                                             landed_on.rent = landed_on.price

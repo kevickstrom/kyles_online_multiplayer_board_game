@@ -19,6 +19,8 @@ class Game:
         self.turn = None
         self.collect_go = False
         self.rolling = False
+        self.moving = False
+        self.moved = False
         self.endturn = False
         self.lastroll = (0, 0)
         self.double = 0
@@ -59,13 +61,13 @@ class Game:
         plays the game
         :return:
         """
-        if self.double == 3:
-            self.double = 0
-        elif self.double == 0:
-            if self.turn == len(self.players) - 1:
-                self.turn = 0
-            else:
-                self.turn += 1
+        # if self.double == 3:
+        #     self.double = 0
+        # if self.double == 0:
+        if self.turn == len(self.players) - 1:
+            self.turn = 0
+        else:
+            self.turn += 1
 
         if self.players[self.turn].lost:
             self.play()
@@ -98,6 +100,7 @@ class Game:
         self.players[self.turn].lvld = False
         self.players[self.turn].sell = False
         self.players[self.turn].sold = False
+        self.players[self.turn].almostlose = False
 
     def add_player(self, player):
         self.players.append(player)

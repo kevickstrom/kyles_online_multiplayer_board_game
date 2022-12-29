@@ -64,7 +64,7 @@ lvlimg = [pygame.image.load(os.path.join('assets', "lvl0.png")), pygame.image.lo
           pygame.image.load(os.path.join('assets', "lvl2.png")), pygame.image.load(os.path.join('assets', "lvl3.png")),
           pygame.image.load(os.path.join('assets', "lvl4.png")), pygame.image.load(os.path.join('assets', "lvl5.png"))]
 for i in range(len(lvlimg)):
-    lvlimg[i] = pygame.transform.smoothscale(lvlimg[i], ((boardrect.width // 11)//4, (boardrect.width // 11)//4))
+    lvlimg[i] = pygame.transform.smoothscale(lvlimg[i], ((boardrect.width // 11) // 4, (boardrect.width // 11) // 4))
 
 # properties load
 properties = PropertyMap()
@@ -110,7 +110,7 @@ for i in range(9, 17):
     # bus 2
     if i == 14:
         properties.inorder[i].price_pos = (WIDTH - (11 * propwidth) + 30,
-                                           HEIGHT - propheight - (inc * propwidth) - (13*propwidth) // 16)
+                                           HEIGHT - propheight - (inc * propwidth) - (13 * propwidth) // 16)
     inc += 1
 # top side including right corner
 inc = 0
@@ -129,7 +129,7 @@ for i in range(17, 25):
     # bus 3
     elif i == 18:
         properties.inorder[i].price_pos = (WIDTH - (9 * propwidth) + (inc * propwidth) + propwidth // 2,
-                                           HEIGHT - (5 * propheight) + propheight//2 - 15)
+                                           HEIGHT - (5 * propheight) + propheight // 2 - 15)
     inc += 1
 # right side not including any corners
 inc = 0
@@ -188,8 +188,8 @@ def draw_board(game=None) -> None:
                 # bus 1
                 elif i == 4:
                     # bottom line
-                    pygame.draw.line(screen, color, (WIDTH - 5*propwidth, HEIGHT),
-                                     (WIDTH - 6*propwidth, HEIGHT), 10)
+                    pygame.draw.line(screen, color, (WIDTH - 5 * propwidth, HEIGHT),
+                                     (WIDTH - 6 * propwidth, HEIGHT), 10)
                     # left line
                     pygame.draw.line(screen, color, (WIDTH - 6 * propwidth, HEIGHT),
                                      (WIDTH - 6 * propwidth, HEIGHT - propheight - 2), 10)
@@ -210,63 +210,70 @@ def draw_board(game=None) -> None:
                                                                 HEIGHT - propheight - (i - 8) * propwidth,
                                                                 propheight // 4, propwidth))
                     screen.blit(lvlimg[locationlvl], (WIDTH - 9 * propwidth - propheight // 4,
-                                                     HEIGHT - propheight - (i - 8) * propwidth))
+                                                      HEIGHT - propheight - (i - 8) * propwidth))
                 # oranges
                 elif i == 13 or i == 15:
                     pygame.draw.rect(screen, color, pygame.Rect(WIDTH - 9 * propwidth - propheight // 4,
                                                                 HEIGHT - propheight - (i - 8) * propwidth,
                                                                 propheight // 4, propwidth))
                     screen.blit(lvlimg[locationlvl], (WIDTH - 9 * propwidth - propheight // 4,
-                                                     HEIGHT - propheight - (i - 8) * propwidth))
+                                                      HEIGHT - propheight - (i - 8) * propwidth))
                 # bus 2
                 elif i == 14:
                     # bottom line
-                    pygame.draw.line(screen, color, (WIDTH - boardrect.width + propheight, HEIGHT - 7*propwidth),
-                                     (WIDTH - boardrect.width, HEIGHT - 7*propwidth), 10)
+                    pygame.draw.line(screen, color, (WIDTH - boardrect.width + propheight, HEIGHT - 7 * propwidth),
+                                     (WIDTH - boardrect.width, HEIGHT - 7 * propwidth), 10)
                     # left line
-                    pygame.draw.line(screen, color, (WIDTH - boardrect.width, HEIGHT - 7*propwidth),
-                                     (WIDTH - boardrect.width, HEIGHT - 8*propwidth), 10)
+                    pygame.draw.line(screen, color, (WIDTH - boardrect.width, HEIGHT - 7 * propwidth),
+                                     (WIDTH - boardrect.width, HEIGHT - 8 * propwidth), 10)
                     # top line
-                    pygame.draw.line(screen, color, (WIDTH - boardrect.width, HEIGHT - 8*propwidth),
-                                     (WIDTH - boardrect.width + propheight, HEIGHT - 8*propwidth), 10)
+                    pygame.draw.line(screen, color, (WIDTH - boardrect.width, HEIGHT - 8 * propwidth),
+                                     (WIDTH - boardrect.width + propheight, HEIGHT - 8 * propwidth), 10)
                     # right line
-                    pygame.draw.line(screen, color, (WIDTH - boardrect.width + propheight, HEIGHT - 8*propwidth),
-                                     (WIDTH - boardrect.width + propheight, HEIGHT - 7*propwidth), 10)
+                    pygame.draw.line(screen, color, (WIDTH - boardrect.width + propheight, HEIGHT - 8 * propwidth),
+                                     (WIDTH - boardrect.width + propheight, HEIGHT - 7 * propwidth), 10)
                 # reds
                 elif i == 17 or i == 19:
                     pygame.draw.rect(screen, color, pygame.Rect(WIDTH - 9 * propwidth + (i - 17) * propwidth,
                                                                 propheight - propheight // 4,
                                                                 propwidth, propheight // 4))
                     screen.blit(lvlimg[locationlvl], (WIDTH - 9 * propwidth + (i - 17) * propwidth,
-                                                     propheight - propheight // 4))
+                                                      propheight - propheight // 4))
                 # bus 3
                 elif i == 18:
                     # bottom line
-                    pygame.draw.line(screen, color, (WIDTH - boardrect.width + 4*propwidth, HEIGHT - boardrect.height + propheight),
-                                     (WIDTH - boardrect.width + 3*propwidth, HEIGHT - boardrect.height + propheight), 10)
+                    pygame.draw.line(screen, color, (WIDTH - boardrect.width + 4 * propwidth,
+                                                     HEIGHT - boardrect.height + propheight),
+                                     (WIDTH - boardrect.width + 3 * propwidth,
+                                      HEIGHT - boardrect.height + propheight), 10)
                     # left line
-                    pygame.draw.line(screen, color, (WIDTH - boardrect.width + 3*propwidth, HEIGHT - boardrect.height + propheight),
-                                     (WIDTH - boardrect.width + 3*propwidth, HEIGHT - boardrect.height), 10)
+                    pygame.draw.line(screen, color,
+                                     (WIDTH - boardrect.width + 3 * propwidth, HEIGHT - boardrect.height + propheight),
+                                     (WIDTH - boardrect.width + 3 * propwidth, HEIGHT - boardrect.height), 10)
                     # top line
-                    pygame.draw.line(screen, color, (WIDTH - boardrect.width + 3*propwidth, HEIGHT - boardrect.height),
-                                     (WIDTH - boardrect.width + 4*propwidth, HEIGHT - boardrect.height), 10)
+                    pygame.draw.line(screen, color,
+                                     (WIDTH - boardrect.width + 3 * propwidth, HEIGHT - boardrect.height),
+                                     (WIDTH - boardrect.width + 4 * propwidth, HEIGHT - boardrect.height), 10)
                     # right line
-                    pygame.draw.line(screen, color, (WIDTH - boardrect.width + 4*propwidth, HEIGHT - boardrect.height),
-                                     (WIDTH - boardrect.width + 4*propwidth, HEIGHT - boardrect.height + propheight), 10)
+                    pygame.draw.line(screen, color,
+                                     (WIDTH - boardrect.width + 4 * propwidth, HEIGHT - boardrect.height),
+                                     (WIDTH - boardrect.width + 4 * propwidth, HEIGHT - boardrect.height + propheight),
+                                     10)
                 # yellows
                 elif 20 <= i <= 23:
                     pygame.draw.rect(screen, color, pygame.Rect(WIDTH - 9 * propwidth + (i - 17) * propwidth,
                                                                 propheight - propheight // 4,
                                                                 propwidth, propheight // 4))
                     screen.blit(lvlimg[locationlvl], (WIDTH - 9 * propwidth + (i - 17) * propwidth,
-                                                     propheight - propheight // 4))
+                                                      propheight - propheight // 4))
                 # bus 4
                 elif i == 25:
                     # bottom line
                     pygame.draw.line(screen, color, (WIDTH, HEIGHT - boardrect.height + propheight + propwidth),
                                      (WIDTH - propheight, HEIGHT - boardrect.height + propheight + propwidth), 10)
                     # left line
-                    pygame.draw.line(screen, color, (WIDTH - propheight, HEIGHT - boardrect.height + propheight + propwidth),
+                    pygame.draw.line(screen, color,
+                                     (WIDTH - propheight, HEIGHT - boardrect.height + propheight + propwidth),
                                      (WIDTH - propheight, HEIGHT - boardrect.height + propheight), 10)
                     # top line
                     pygame.draw.line(screen, color, (WIDTH - propheight, HEIGHT - boardrect.height + propheight),
@@ -280,7 +287,7 @@ def draw_board(game=None) -> None:
                                                                 3 * propwidth + (i - 26) * propwidth,
                                                                 propheight // 4, propwidth))
                     screen.blit(lvlimg[locationlvl], (WIDTH - propheight,
-                                                     3 * propwidth + (i - 26) * propwidth))
+                                                      3 * propwidth + (i - 26) * propwidth))
 
 
 def draw_ui(game, myself: Player) -> Player:
@@ -328,7 +335,8 @@ def draw_ui(game, myself: Player) -> Player:
             player_moneyrect = player_money.get_rect()
             player_moneyrect.centery = player_moneyrect.height + player_namerect.centery
             moneywidth = player_moneyrect.width
-            screen.blit(player_money, (WIDTH - boardrect.width - player_namewidth - moneywidth - 40, player_moneyrect.centery))
+            screen.blit(player_money,
+                        (WIDTH - boardrect.width - player_namewidth - moneywidth - 40, player_moneyrect.centery))
         i += 100
 
     return myself
@@ -339,7 +347,6 @@ def draw_players(game, myself: Player) -> None:
     Draws the players on the board and their movement animations
     """
     global screen
-    showroll = False
     if game.started:
         if game.rolling and game.turn == myself.id:
             font = pygame.font.Font(None, 36)
@@ -348,14 +355,13 @@ def draw_players(game, myself: Player) -> None:
             textpos.centerx = boardrect.centerx
             textpos.centery = boardrect.centery - 100
             screen.blit(text, textpos)
-    for player in game.players:
-        if player.rolling and player.showroll and player.id != myself.id:
-            showroll = True
+        player = game.players[game.turn]
+        if player.rolling and player.showroll:
             roll_dice()
-        elif player.rolling and player.id != myself.id and showroll:
+            myself.showmoving = True
+        elif not player.rolling and player.showroll:
             roll_dice(game.lastroll[0], game.lastroll[1])
-            showroll = False
-        if player.moving:
+        if player.moving and myself.showmoving:
             player.nextspot = 0
             for otherplayer in game.players:
                 if otherplayer.location == player.nextlocation and otherplayer.id != player.id:
@@ -412,20 +418,20 @@ def draw_players(game, myself: Player) -> None:
                             pygame.draw.circle(screen, color, (x, y), 10)
                             lastx = x
                             lasty = y
-                    draw_turn(game, myself)
-                    if not player.rolling:
-                        roll_dice(game.lastroll[0], game.lastroll[1])
                 pygame.display.flip()
                 clock.tick(60)
             # note that each client can't actually change instance attributes of other players
             # ths is just used client side to facilitate correct animations
             player.rolling = False
             player.moving = False
+            myself.showmoving = False
             player.location = player.nextlocation
             player.spot = player.nextspot
-        elif not player.lost:
-            pygame.draw.circle(screen, (0, 0, 0), properties.inorder[player.location].spots[player.spot], 12)
-            pygame.draw.circle(screen, player.color, properties.inorder[player.location].spots[player.spot], 10)
+        else:
+            for player in game.players:
+                if not player.lost:
+                    pygame.draw.circle(screen, (0, 0, 0), properties.inorder[player.location].spots[player.spot], 12)
+                    pygame.draw.circle(screen, player.color, properties.inorder[player.location].spots[player.spot], 10)
 
 
 def draw_turn(game, myself: Player) -> None:
@@ -503,6 +509,7 @@ def draw_turn(game, myself: Player) -> None:
         if not myself.endturn and myself.location == myself.nextlocation and not myself.rolling and not myself.lost:
             if endturn.draw():
                 myself.endturn = True
+                myself.showroll = False
         else:
             if notendturn.draw():
                 pass
@@ -535,7 +542,7 @@ def draw_almostlose(game, myself):
         owned_prop = font.render(f"{myprops[i].name}    lvl:{myprops[i].level}", True, (0, 0, 0))
         owned_prop_pos = owned_prop.get_rect()
         owned_prop_pos.x = WIDTH // 2 - headerpos.width
-        owned_prop_pos.centery = (2 * propwidth) + i * (propwidth//2)
+        owned_prop_pos.centery = (2 * propwidth) + i * (propwidth // 2)
         screen.blit(owned_prop, owned_prop_pos)
         # list the price they will sell for
         sellprice = font.render(f"+${myprops[i].price * (myprops[i].level + 1)}", True, (60, 179, 113))
@@ -562,7 +569,7 @@ def draw_almostlose(game, myself):
             # show how many levels to drop
             lvls = font.render(f"-{myself.leveldown[myprops[i].id]} lvls", True, (60, 179, 113))
             lvls_pos = lvls.get_rect()
-            lvls_pos.centerx = WIDTH // 2 + almostlosebckgrnd.rect.width//2 - (3*lvls.get_width())
+            lvls_pos.centerx = WIDTH // 2 + almostlosebckgrnd.rect.width // 2 - (3 * lvls.get_width())
             lvls_pos.centery = (2 * propwidth) + i * (propwidth // 2)
             screen.blit(lvls, lvls_pos)
             # show $$$ from leveling down on the right side
@@ -601,7 +608,7 @@ def draw_almostlose(game, myself):
                 pass
             addprice = font.render(f"+${myprops[i].price * (myprops[i].level + 1)}", True, (60, 179, 113))
             newpos = addprice.get_rect()
-            newpos.centerx = WIDTH // 2 + almostlosebckgrnd.rect.width//2 - addprice.get_width()
+            newpos.centerx = WIDTH // 2 + almostlosebckgrnd.rect.width // 2 - addprice.get_width()
             newpos.centery = (2 * propwidth) + i * (propwidth // 2)
             screen.blit(addprice, newpos)
             networth += myprops[i].price * (myprops[i].level + 1)
@@ -844,11 +851,8 @@ def main():
             if stop_roll:
                 roll = False
                 myself.rolling = False
-                myself.showroll = False
-                roll_dice(game.lastroll[0], game.lastroll[1])
                 myself.moving = True
-            else:
-                roll_dice()
+                myself.showmoving = True
 
         pygame.display.flip()
         clock.tick(60)

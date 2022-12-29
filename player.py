@@ -36,3 +36,4 @@ class Player:
         self.rolling = False
         self.showroll = False
         self.moving = False
+        self.showmoving = False
