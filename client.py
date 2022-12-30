@@ -680,89 +680,6 @@ def roll_dice(x: int = -1, y: int = -1) -> None:
         screen.blit(dice2, dice2rect)
 
 
-def start_menu(playernum: int, network: Network) -> Player:
-    """
-    Starting menu when the game is launched
-    initializes and returns player - name, color
-    TODO: only display the available colors (not taken by another player)
-    """
-    user_text = ''
-    input_rect = pygame.Rect(200, 200, 140, 32)
-
-    color_active = pygame.Color('lightskyblue3')
-    color_passive = pygame.Color('grey')
-    clock = pygame.time.Clock()
-
-    choice = 0
-    left_button = button.Button(WIDTH // 2 - 250, HEIGHT // 2, faces[choice], 1)
-    right_button = button.Button(WIDTH // 2 + 250, HEIGHT // 2, faces[choice + 1], 1)
-    color_choices = ["RED", "GREEN", "BLUE", "YELLOW", "CYAN", "MAGENTA"]
-
-    menu = True
-    active = False
-    while menu:
-        # event handling
-        for event in pygame.event.get():
-            if event.type == pygame.QUIT:
-                pygame.quit()
-                sys.exit()
-            if event.type == pygame.MOUSEBUTTONDOWN:
-                if input_rect.collidepoint(event.pos):
-                    active = True
-                else:
-                    active = False
-            if event.type == pygame.KEYDOWN:
-                if event.key == pygame.K_BACKSPACE:
-                    user_text = user_text[:-1]
-                elif event.key == pygame.K_RETURN:
-                    menu = False
-                else:
-                    user_text += event.unicode
-
-        # color the screen and blit
-        screen.fill((52, 78, 91))
-        if active:
-            color = color_active
-        else:
-            color = color_passive
-
-        # enter color
-        if choice > 0:
-            if left_button.draw():
-                choice -= 1
-                left_button.image = faces[choice - 1]
-                right_button.image = faces[choice + 1]
-                time.sleep(0.2)
-        if choice < len(color_choices) - 1:
-            if right_button.draw():
-                choice += 1
-                left_button.image = faces[choice - 1]
-                if choice < len(color_choices) - 1:
-                    right_button.image = faces[choice + 1]
-                time.sleep(0.2)
-        color_text_surface = base_font.render("Choose a color:", True, (255, 255, 255))
-        screen.blit(color_text_surface, (WIDTH // 2 - color_text_surface.get_width() // 2, HEIGHT // 2 - 100))
-        pygame.draw.circle(screen, color_choices[choice], (WIDTH // 2, HEIGHT // 2), 50)
-
-        # enter name
-        pygame.draw.rect(screen, color, input_rect)
-        user_text_surface = base_font.render(user_text, True, (255, 255, 255))
-        name_text_surface = base_font.render("Enter your name:", True, (255, 255, 255))
-        screen.blit(user_text_surface, (input_rect.x + 5, input_rect.y + 5))
-        screen.blit(name_text_surface, (input_rect.x, input_rect.y - name_text_surface.get_height()))
-        input_rect.w = max(100, user_text_surface.get_width() + 10)
-
-        pygame.display.flip()
-        clock.tick(60)
-    me = Player(playernum)
-    me.name = user_text
-    me.color = color_choices[choice]
-    me.location = 0
-    me.spot = me.id
-    print(f"my id is {me.id}")
-    return me
-
-
 def settings_menu() -> None:
     """
     Settings menu with buttons
@@ -793,12 +710,97 @@ def settings_menu() -> None:
         clock.tick(60)
 
 
+def draw_start_menu(game, myself: Player, events) -> bool:
+    """
+    Starting menu when the game is launched
+    initializes and returns player - name, color
+    """
+    input_rect = pygame.Rect(200, 200, 140, 32)
+
+    color_active = pygame.Color('lightskyblue3')
+    color_passive = pygame.Color('grey')
+
+    color_choices = game.color_pick
+    choice = myself.color
+    if choice > len(color_choices) - 1:
+        choice = len(color_choices) - 1
+    if choice > 0:
+        left_button = button.Button(WIDTH // 2 - 250, HEIGHT // 2, faces[choice - 1], 1)
+    else:
+        left_button = button.Button(WIDTH // 2 - 250, HEIGHT // 2, faces[choice], 1)
+    if choice < 5:
+        right_button = button.Button(WIDTH // 2 + 250, HEIGHT // 2, faces[choice + 1], 1)
+    else:
+        right_button = button.Button(WIDTH // 2 + 250, HEIGHT // 2, faces[choice], 1)
+
+    active = False
+    menu = True
+    # event handling
+    for event in events:
+        pass
+        if event.type == pygame.MOUSEBUTTONDOWN:
+            if input_rect.collidepoint(event.pos):
+                active = True
+            else:
+                active = False
+        if event.type == pygame.KEYDOWN:
+            if event.key == pygame.K_BACKSPACE:
+                myself.name = myself.name[:-1]
+            elif event.key == pygame.K_RETURN:
+                menu = False
+            else:
+                myself.name += event.unicode
+
+        # color the screen and blit
+        screen.fill((52, 78, 91))
+        if active:
+            color = color_active
+        else:
+            color = color_passive
+
+        # enter color
+        if choice > 0:
+            if left_button.draw():
+                choice -= 1
+                left_button.image = faces[choice - 1]
+                right_button.image = faces[choice + 1]
+                time.sleep(0.2)
+        if choice < len(color_choices) - 1:
+            if right_button.draw():
+                choice += 1
+                left_button.image = faces[choice - 1]
+                if choice < len(color_choices) - 1:
+                    right_button.image = faces[choice + 1]
+                time.sleep(0.2)
+        color_text_surface = base_font.render("Choose a color:", True, (255, 255, 255))
+        screen.blit(color_text_surface, (WIDTH // 2 - color_text_surface.get_width() // 2, HEIGHT // 2 - 100))
+        pygame.draw.circle(screen, color_choices[choice], (WIDTH // 2, HEIGHT // 2), 50)
+
+        # enter name
+        user_text_surface = base_font.render(myself.name, True, (255, 255, 255))
+        name_text_surface = base_font.render("Enter your name:", True, (255, 255, 255))
+        input_rect.w = max(100, user_text_surface.get_width() + 10)
+        pygame.draw.rect(screen, color, input_rect)
+        screen.blit(user_text_surface, (input_rect.x + 5, input_rect.y + 5))
+        screen.blit(name_text_surface, (input_rect.x, input_rect.y - name_text_surface.get_height()))
+
+    if not menu:
+        myself.color = color_choices[choice]
+        myself.location = 0
+        myself.spot = myself.id
+        print(f"my id is {myself.id}")
+    else:
+        myself.color = choice
+    return menu
+
+
 def main():
     """
     Main game loop
     """
     n = Network()
     playernum = int(n.getP())
+    myself = Player(playernum)
     draw_board()
     clock = pygame.time.Clock()
     roll = False
@@ -809,25 +811,22 @@ def main():
     firststart = True
 
     while run:
-        # start menu
-        if firststart:
-            firststart = False
-            myself = start_menu(playernum, n)
-            n.update(myself)
 
         # update game
         try:
             game = n.update(myself)
-            for player in game.players:
-                if player.id == playernum:
-                    myself = player
+            if not firststart:
+                for player in game.players:
+                    if player.id == playernum:
+                        myself = player
         except:
             run = False
             print("Couldn't get game")
             break
 
         # event handling
-        for event in pygame.event.get():
+        events = pygame.event.get()
+        for event in events:
             if event.type == pygame.KEYDOWN:
                 if myself.rolling:
                     if event.key == pygame.K_SPACE and not roll:
@@ -840,11 +839,13 @@ def main():
                 run = False
 
         # drawing to screen
-        draw_board(game)
-        myself = draw_ui(game, myself)
-        draw_players(game, myself)
-        draw_turn(game, myself)
-        # testing
+        if firststart:
+            firststart = draw_start_menu(game, myself, events)
+        else:
+            draw_board(game)
+            myself = draw_ui(game, myself)
+            draw_players(game, myself)
+            draw_turn(game, myself)
         if myself.almostlose:
             draw_almostlose(game, myself)
         if roll:

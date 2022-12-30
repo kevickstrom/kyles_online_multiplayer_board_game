@@ -6,8 +6,8 @@ class Player:
     """
     def __init__(self, id: int):
         self.id = id
-        self.name = None
-        self.color = (255, 255, 255)
+        self.name = ''
+        self.color = 0
         self._money = 1500
         self._properties = []
         self.ready = False

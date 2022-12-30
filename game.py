@@ -104,3 +104,4 @@ class Game:
 
     def add_player(self, player):
         self.players.append(player)
+        self.color_pick.remove(player.color)

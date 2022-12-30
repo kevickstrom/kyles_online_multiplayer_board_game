@@ -36,14 +36,12 @@ def threaded_client(conn, p, gameId):
     while not selected:
         # receive filled out player class
         try:
-            player = pickle.loads(conn.recv(2048 * 32))
+            player = pickle.loads(conn.recv(2048 * 8))
             if gameId in games:
                 game = games[gameId]
-                if player:
+                if isinstance(player.color, str):
                     game.add_player(player)
-                    game.color_pick.remove(player.color)
                     selected = True
-
                 conn.sendall(pickle.dumps(game))
                 print("sent")
         except:
