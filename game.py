@@ -61,13 +61,15 @@ class Game:
         plays the game
         :return:
         """
-        # if self.double == 3:
-        #     self.double = 0
-        # if self.double == 0:
-        if self.turn == len(self.players) - 1:
-            self.turn = 0
-        else:
-            self.turn += 1
+        self.players[self.turn].endturn = False
+        if self.double == 3:
+            self.double = 0
+        # assign new turn
+        if self.double == 0:
+            if self.turn == len(self.players) - 1:
+                self.turn = 0
+            else:
+                self.turn += 1
 
         if self.players[self.turn].lost:
             self.play()
@@ -80,6 +82,8 @@ class Game:
         d2 = random.randrange(0, 6)
         if d1 == d2:
             self.double += 1
+        else:
+            self.double = 0
         self.lastroll = (d1, d2)
         print(f"turn: {self.players[self.turn].color}, id {self.players[self.turn].id},"
               f" roll: {(self.lastroll[0] + 1, self.lastroll[1] + 1)}")
@@ -89,6 +93,7 @@ class Game:
             self.collect_go = True
         self.goto_next = nextloc
 
+        # reset player daya
         self.leveled = False
         self.players[self.turn].endturn = False
         self.players[self.turn].rolling = True

@@ -23,6 +23,7 @@ class Player:
         self.paid = False
         self.sell = False
         self.sold = False
+        self.auction = False  # true if player is selecting property, prop_id: int if property is selected
 
         self.almostlose = False
         self.tosell = []

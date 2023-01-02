@@ -1,4 +1,7 @@
-# monopoly test script
+# kyles online multiplayer board game client script
+# written by Kyle Vickstrom
+# vickskyl@oregonstate.edu
+# https://github.com/kevickstrom/monopoly_butonlykylecancheat
 
 import os
 import sys
@@ -54,6 +57,8 @@ notmortgageimg = pygame.image.load(os.path.join('assets', "notmortgage.png"))
 confirmimg = pygame.image.load(os.path.join('assets', "confirm.png"))
 cancelimg = pygame.image.load(os.path.join('assets', "cancel.png"))
 notcancelimg = pygame.image.load(os.path.join('assets', "notcancel.png"))
+auctionimg = pygame.image.load(os.path.join('assets', "auction.png"))
+notauctionimg = pygame.image.load(os.path.join('assets', "notauction.png"))
 
 # almostlose background
 almostloseimg = pygame.image.load(os.path.join('assets', "almostlose.png"))
@@ -445,6 +450,8 @@ def draw_turn(game, myself: Player) -> None:
     notendturn = button.Button(boardrect.centerx - 160, (9 * propwidth) - 64, notendturnimg)
     lvlup = button.Button(boardrect.centerx + 160, (9 * propwidth) - 64, lvlupimg)
     sell = button.Button(boardrect.centerx, (9 * propwidth) - 64, sellimg)
+    auction = button.Button(boardrect.centerx - 160, (9 * propwidth) - 135, auctionimg)
+    notauction = button.Button(boardrect.centerx - 160, (9 * propwidth) - 135, notauctionimg)
 
     if game.started:
         # display who's turn it is
@@ -505,13 +512,18 @@ def draw_turn(game, myself: Player) -> None:
             lvltextpos.centerx = boardrect.centerx - 200
             lvltextpos.centery = boardrect.centery - 150
             screen.blit(lvltext, lvltextpos)
-        # end turn buttons
+        # end turn buttons and auction
         if not myself.endturn and myself.location == myself.nextlocation and not myself.rolling and not myself.lost:
             if endturn.draw():
                 myself.endturn = True
                 myself.showroll = False
+            # auction
+            if auction.draw():
+                myself.auction = True
         else:
             if notendturn.draw():
+                pass
+            if notauction.draw():
                 pass
 
 
@@ -637,12 +649,30 @@ def draw_almostlose(game, myself):
         myself.leveldown = {}
 
 
-def draw_auction_prop(game, myself: Player, prop: Property):
+def draw_auction(game, myself: Player):
     """
-    TODO: write auction drawing
+    TODO: write auction menu drawing
+    """
+    confirmbutton = button.Button((WIDTH - boardrect.width)//2 + 64, HEIGHT - 96, confirmimg)
+    cancelbutton = button.Button((WIDTH - boardrect.width)//2 - 64, HEIGHT - 96, cancelimg)
+    font = pygame.font.Font(None, 64)
+    header = font.render("Select the property to auction:", True, (255, 255, 255))
+    headerpos = header.get_rect()
+    headerpos.centerx = (WIDTH - boardrect.width)//2
+    headerpos.centery = propwidth
+    pygame.draw.rect(screen, (0, 0, 0), pygame.Rect(0, 0, WIDTH - boardrect.width, HEIGHT))
+    screen.blit(header, headerpos)
+    if cancelbutton.draw():
+        myself.auction = False
+    if confirmbutton.draw():
+        pass
+
+
+def draw_auction_prop(game, myself: Player, propid: int):
+    """
+    TODO: write auctioning
     """
     pass
-
 
 def roll_dice(x: int = -1, y: int = -1) -> None:
     """
@@ -848,6 +878,8 @@ def main():
             draw_turn(game, myself)
         if myself.almostlose:
             draw_almostlose(game, myself)
+        elif myself.auction is True:
+            draw_auction(game, myself)
         if roll:
             if stop_roll:
                 roll = False
