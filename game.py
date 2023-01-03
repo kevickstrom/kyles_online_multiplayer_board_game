@@ -13,6 +13,7 @@ class Game:
         self.players = []
         self.player_money = {}
         self.props = [i for i in range(0, 32)]  # list of property id's
+        self.pprop_byid = []  # index = player id, value = list of owned properties
         self.propmap = PropertyMap()
         self.leveled = False
 
@@ -38,6 +39,7 @@ class Game:
 
         for player in self.players:
             self.player_money[player.id] = 1500
+            # self.pprop_byid[player.id] = []
 
         firstturn = random.randrange(0, len(self.players))
         self.turn = self.players[firstturn].id

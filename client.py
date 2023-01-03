@@ -21,7 +21,7 @@ WIDTH = display_info.current_w
 HEIGHT = display_info.current_h
 screen = pygame.display.set_mode((WIDTH, HEIGHT), pygame.FULLSCREEN)
 fullscreen = True
-pygame.display.set_caption("Monopoly but only Kyle can cheat")
+pygame.display.set_caption("kyles online multiplayer board game")
 base_font = pygame.font.Font(None, 32)
 
 # dice load
@@ -59,6 +59,9 @@ cancelimg = pygame.image.load(os.path.join('assets', "cancel.png"))
 notcancelimg = pygame.image.load(os.path.join('assets', "notcancel.png"))
 auctionimg = pygame.image.load(os.path.join('assets', "auction.png"))
 notauctionimg = pygame.image.load(os.path.join('assets', "notauction.png"))
+selectimg = pygame.image.load(os.path.join('assets', "select.png"))
+selectedimg = pygame.image.load(os.path.join('assets', "selected.png"))
+notselectimg = pygame.image.load(os.path.join('assets', "notselect.png"))
 
 # almostlose background
 almostloseimg = pygame.image.load(os.path.join('assets', "almostlose.png"))
@@ -351,7 +354,6 @@ def draw_players(game, myself: Player) -> None:
     """
     Draws the players on the board and their movement animations
     """
-    global screen
     if game.started:
         if game.rolling and game.turn == myself.id:
             font = pygame.font.Font(None, 36)
@@ -444,7 +446,6 @@ def draw_turn(game, myself: Player) -> None:
     Buttons on the board to end turn and buy / sell property
     Also displays transaction texts
     """
-    global screen
     buy = button.Button(boardrect.centerx + 160, (9 * propwidth) - 64, buyimg)
     endturn = button.Button(boardrect.centerx - 160, (9 * propwidth) - 64, endturnimg)
     notendturn = button.Button(boardrect.centerx - 160, (9 * propwidth) - 64, notendturnimg)
@@ -514,12 +515,13 @@ def draw_turn(game, myself: Player) -> None:
             screen.blit(lvltext, lvltextpos)
         # end turn buttons and auction
         if not myself.endturn and myself.location == myself.nextlocation and not myself.rolling and not myself.lost:
-            if endturn.draw():
-                myself.endturn = True
-                myself.showroll = False
-            # auction
-            if auction.draw():
-                myself.auction = True
+            if myself.auction is not True:
+                if endturn.draw():
+                    myself.endturn = True
+                    myself.showroll = False
+                # auction
+                if auction.draw():
+                    myself.auction = True
         else:
             if notendturn.draw():
                 pass
@@ -527,7 +529,7 @@ def draw_turn(game, myself: Player) -> None:
                 pass
 
 
-def draw_almostlose(game, myself):
+def draw_almostlose(game, myself) -> None:
     """
     Draws the selling / mortgage property tab because you almost lost
     """
@@ -649,23 +651,84 @@ def draw_almostlose(game, myself):
         myself.leveldown = {}
 
 
-def draw_auction(game, myself: Player):
+def draw_auction(game, myself: Player, events) -> None:
     """
-    TODO: write auction menu drawing
+    Auction property select menu with scrolling
+    Sets myself.auction to the id of the prop
     """
-    confirmbutton = button.Button((WIDTH - boardrect.width)//2 + 64, HEIGHT - 96, confirmimg)
-    cancelbutton = button.Button((WIDTH - boardrect.width)//2 - 64, HEIGHT - 96, cancelimg)
-    font = pygame.font.Font(None, 64)
-    header = font.render("Select the property to auction:", True, (255, 255, 255))
+    # buttons
+    confirmbutton = button.Button((WIDTH - boardrect.width)//2 + 64, HEIGHT - 32, confirmimg)
+    cancelbutton = button.Button((WIDTH - boardrect.width)//2 - 64, HEIGHT - 32, cancelimg)
+    exitbutton = button.Button((WIDTH - boardrect.width)//2 - 64, HEIGHT - 32, exitimg)
+    font = pygame.font.Font(None, 32)
+    headerfont = pygame.font.Font(None, 64)
+    header = headerfont.render("Select the property to auction:", True, (255, 255, 255))
     headerpos = header.get_rect()
     headerpos.centerx = (WIDTH - boardrect.width)//2
     headerpos.centery = propwidth
-    pygame.draw.rect(screen, (0, 0, 0), pygame.Rect(0, 0, WIDTH - boardrect.width, HEIGHT))
-    screen.blit(header, headerpos)
+    # check for scrolling
+    for event in events:
+        if event.type == pygame.MOUSEBUTTONDOWN:
+            if event.button == 4:
+                myself.aucy = min(myself.aucy + 15, 0)
+            if event.button == 5:
+                myself.aucy = max(myself.aucy - 15, -1*HEIGHT//2)
+    # create background surface
+    aucmenu = pygame.surface.Surface((WIDTH - boardrect.width, HEIGHT * 2))
+    aucmenu.blit(header, headerpos)
+    # draw properties with selection buttons on the menu
+    i = 0
+    for prop in game.propmap.inorder:
+        if prop.owned == myself.id:
+            # text
+            owned_prop = font.render(f"{prop.name}    lvl:{prop.level}", True, (255, 255, 255))
+            if prop.level == 0:
+                info = font.render(f"price: {prop.price}    invested: ${prop.price}", True, (40, 180, 99))
+            else:
+                info = font.render(f"price: ${prop.price}    invested: ${prop.price * prop.level}", True,
+                                   (40, 180, 99))
+            owned_prop_pos = owned_prop.get_rect()
+            owned_prop_pos.x = 10
+            owned_prop_pos.centery = (2 * propwidth) + i * (propwidth // 2)
+            info_pos = info.get_rect()
+            info_pos.x = owned_prop_pos.x + owned_prop_pos.width + 10
+            info_pos.centery = (2 * propwidth) + i * (propwidth // 2)
+
+            # selection buttons
+            selectbutton = button.Button((WIDTH - boardrect.width) - 150, (2 * propwidth) + i * (propwidth // 2),
+                                         selectimg)
+            selectedbutton = button.Button((WIDTH - boardrect.width) - 150, (2 * propwidth) + i * (propwidth // 2),
+                                           selectedimg)
+            notselectbutton = button.Button((WIDTH - boardrect.width) - 150, (2 * propwidth) + i * (propwidth // 2),
+                                            notselectimg)
+
+            if myself.aucselect is None:
+                if selectbutton.blit(aucmenu, myself.aucy) and (time.process_time() - myself.timer) > 0.15:
+                    myself.aucselect = prop.id
+                    myself.timer = time.process_time()
+            elif myself.aucselect == prop.id:
+                if selectedbutton.blit(aucmenu, myself.aucy) and (time.process_time() - myself.timer) > 0.15:
+                    myself.aucselect = None
+                    myself.timer = time.process_time()
+            else:
+                if notselectbutton.blit(aucmenu, myself.aucy):
+                    pass
+
+            aucmenu.blit(owned_prop, owned_prop_pos)
+            aucmenu.blit(info, info_pos)
+            i += 1
+    # blit the menu and control buttons
+    screen.blit(aucmenu, (0, myself.aucy))
+    pygame.draw.rect(screen, (15, 0, 0), pygame.Rect(0, HEIGHT - 64, WIDTH - boardrect.width, 64))
+    # if exitbutton.draw():
+    #     myself.auction = False
+    #     myself.aucselect = None
     if cancelbutton.draw():
         myself.auction = False
-    if confirmbutton.draw():
-        pass
+        myself.aucselect = None
+    if myself.aucselect is not None:
+        if confirmbutton.draw():
+            myself.auction = myself.aucselect
 
 
 def draw_auction_prop(game, myself: Player, propid: int):
@@ -673,6 +736,7 @@ def draw_auction_prop(game, myself: Player, propid: int):
     TODO: write auctioning
     """
     pass
+
 
 def roll_dice(x: int = -1, y: int = -1) -> None:
     """
@@ -879,7 +943,7 @@ def main():
         if myself.almostlose:
             draw_almostlose(game, myself)
         elif myself.auction is True:
-            draw_auction(game, myself)
+            draw_auction(game, myself, events)
         if roll:
             if stop_roll:
                 roll = False

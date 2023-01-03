@@ -1,4 +1,5 @@
 # player class
+import time
 
 class Player:
     """
@@ -24,6 +25,8 @@ class Player:
         self.sell = False
         self.sold = False
         self.auction = False  # true if player is selecting property, prop_id: int if property is selected
+        self.aucy = 0
+        self.aucselect = None  # holds the id of the property to be auctioned for the player auction select menu
 
         self.almostlose = False
         self.tosell = []
@@ -38,3 +41,5 @@ class Player:
         self.showroll = False
         self.moving = False
         self.showmoving = False
+
+        self.timer = time.process_time()

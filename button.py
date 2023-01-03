@@ -33,6 +33,20 @@ class Button:
         screen.blit(self.image, (self.rect.x, self.rect.y))
         return self.clicked
 
+    def blit(self, surface, offset):
+        """
+        same functionality as draw excecpt it blits to a surface instead of the screen
+        """
+        if self.clicked:
+            self.clicked = False
+        mouse = pygame.mouse.get_pos()
+        pos = (mouse[0], mouse[1] - offset)
+        if self.rect.collidepoint(pos):
+            if pygame.mouse.get_pressed()[0] == 1 and not self.clicked:
+                self.clicked = True
+        surface.blit(self.image, (self.rect.x, self.rect.y))
+        return self.clicked
+
     def update_pos(self, x, y):
         """
         updates position

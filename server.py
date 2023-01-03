@@ -106,6 +106,7 @@ def threaded_client(conn, p, gameId):
                                 # buying property and checking for monopoly
                                 if player.buy and not player.bought:
                                     game.propmap.inorder[player.location].buy(player.id)
+                                    # game.pprop_byid[player.id].append(player.location)
                                     game.player_money[game.turn] -= game.propmap.inorder[player.location].price
                                     color = game.propmap.inorder[player.location].color
                                     group = []
