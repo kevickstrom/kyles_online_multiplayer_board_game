@@ -33,7 +33,7 @@ class Button:
         screen.blit(self.image, (self.rect.x, self.rect.y))
         return self.clicked
 
-    def blit(self, surface, offset):
+    def blit(self, surface, offset=0):
         """
         same functionality as draw excecpt it blits to a surface instead of the screen
         """

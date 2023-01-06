@@ -355,14 +355,14 @@ def draw_players(game, myself: Player) -> None:
     Draws the players on the board and their movement animations
     """
     if game.started:
-        if game.rolling and game.turn == myself.id:
+        player = game.players[game.turn]
+        if myself.rolling and player.id == myself.id:
             font = pygame.font.Font(None, 36)
             text = font.render("press space to roll dice", True, (10, 10, 10))
             textpos = text.get_rect()
             textpos.centerx = boardrect.centerx
             textpos.centery = boardrect.centery - 100
             screen.blit(text, textpos)
-        player = game.players[game.turn]
         if player.rolling and player.showroll:
             roll_dice()
             myself.showmoving = True
@@ -514,7 +514,9 @@ def draw_turn(game, myself: Player) -> None:
             lvltextpos.centery = boardrect.centery - 150
             screen.blit(lvltext, lvltextpos)
         # end turn buttons and auction
-        if not myself.endturn and myself.location == myself.nextlocation and not myself.rolling and not myself.lost:
+        rolled = not myself.endturn and myself.location == myself.nextlocation and not myself.rolling
+        eligible = not myself.lost and not game.auctioned
+        if rolled and eligible:
             if myself.auction is not True:
                 if endturn.draw():
                     myself.endturn = True
@@ -728,14 +730,198 @@ def draw_auction(game, myself: Player, events) -> None:
         myself.aucselect = None
     if myself.aucselect is not None:
         if confirmbutton.draw():
-            myself.auction = myself.aucselect
+            myself.auction = False
+            myself.aucstart = True
+            # for testing
+            myself.bid = ["", "", ""]
 
 
-def draw_auction_prop(game, myself: Player, propid: int):
+def draw_auction_prop(game, myself: Player, propid: int, events):
     """
     TODO: write auctioning
     """
-    pass
+    confirmbutton = button.Button(200 + 64, HEIGHT - 200 + 64, confirmimg)
+    menuwid = WIDTH - boardrect.width
+    aucmenu = pygame.surface.Surface((menuwid, HEIGHT))
+    headerfont = pygame.font.Font(None, 48)
+    if game.aucstart and not myself.aucstart:
+        myself.bid = ["", "", ""]  # blank for each round to fill out bid
+        myself.aucstart = True
+        print("auc started")
+        # myself.timer = time.process_time()
+    roundtime = round(30 - (time.time() - game.timer), 1)
+
+    # headers
+    forsale_obj = game.propmap.inorder[propid]
+    forsale = headerfont.render(f"{forsale_obj.name}", True, game.propmap.colors[forsale_obj.color])
+    forsalepos = forsale.get_rect()
+    forsalepos.centerx = menuwid // 2
+    forsalepos.centery = propwidth // 2
+    aucmenu.blit(forsale, forsalepos)
+    if game.aucround == 3:
+        header = headerfont.render(f"Auction Time Left: {round(roundtime - 20, 1)}", True, (255, 255, 255))
+    elif roundtime > 0:
+        header = headerfont.render(f"Auction Time Left: {roundtime}", True, (255, 255, 255))
+    else:
+        header = headerfont.render(f"Auction Time Left: 0", True, (255, 255, 255))
+    headerpos = header.get_rect()
+    headerpos.centerx = (WIDTH - boardrect.width) // 2
+    headerpos.centery = propwidth
+
+    tablewid = (3*menuwid)//4
+    tableleft = menuwid//4
+    tableheader1 = headerfont.render(f"R1", True, (255, 255, 255))
+    tableheader2 = headerfont.render(f"R2", True, (255, 255, 255))
+    tableheader3 = headerfont.render(f"R3", True, (255, 255, 255))
+
+    tableheader1pos = tableheader1.get_rect()
+    tableheader1pos.centery = 150
+    tableheader1pos.centerx = tableleft
+
+    tableheader2pos = tableheader2.get_rect()
+    tableheader2pos.centery = 150
+    tableheader2pos.centerx = 2 * tableleft
+
+    tableheader3pos = tableheader3.get_rect()
+    tableheader3pos.centery = 150
+    tableheader3pos.centerx = 3 * tableleft
+
+    aucmenu.blit(tableheader1, tableheader1pos)
+    aucmenu.blit(tableheader2, tableheader2pos)
+    aucmenu.blit(tableheader3, tableheader3pos)
+
+    i = 150
+    for player in game.players:
+
+        # blit color
+        pygame.draw.circle(aucmenu, player.color, (10, i + 50), 10)
+
+        # blit name
+        player_name = base_font.render(player.name, True, (255, 255, 255))
+        player_namerect = player_name.get_rect()
+        player_namerect.centery = i + 50
+        player_namewidth = player_namerect.width
+        aucmenu.blit(player_name, (20, player_namerect.centery))
+
+        # blit money
+        money = str(game.player_money[player.id])
+        player_money = base_font.render(f"${money}", True, (255, 255, 255))
+        player_moneyrect = player_money.get_rect()
+        player_moneyrect.centery = player_moneyrect.height + player_namerect.centery
+        moneywidth = player_moneyrect.width
+        aucmenu.blit(player_money, (20, player_moneyrect.centery))
+
+        # blit betting
+        if game.aucround > 0:
+            bid1 = player.bid[0]
+            if int(bid1) == game.highbid:
+                bidcolor = (30, 132, 73)
+            else:
+                bidcolor = (255, 255, 255)
+            player_bid = base_font.render(f"${bid1}", True, bidcolor)
+            player_bidrect = player_bid.get_rect()
+            player_bidrect.centerx = tableleft
+            player_bidrect.centery = player_bidrect.height + player_namerect.centery
+            aucmenu.blit(player_bid, player_bidrect)
+
+            if game.aucround > 1:
+                bid2 = player.bid[1]
+                if int(bid2) == game.highbid:
+                    bidcolor = (30, 132, 73)
+                else:
+                    bidcolor = (255, 255, 255)
+                player_bid = base_font.render(f"${bid2}", True, bidcolor)
+                player_bidrect = player_bid.get_rect()
+                player_bidrect.centerx = 2*tableleft
+                player_bidrect.centery = player_bidrect.height + player_namerect.centery
+                aucmenu.blit(player_bid, player_bidrect)
+
+            if game.aucround > 2:
+                bid3 = player.bid[2]
+                if int(bid3) == game.highbid:
+                    bidcolor = (30, 132, 73)
+                else:
+                    bidcolor = (255, 255, 255)
+                player_bid = base_font.render(f"${bid3}", True, bidcolor)
+                player_bidrect = player_bid.get_rect()
+                player_bidrect.centerx = 3*tableleft
+                player_bidrect.centery = player_bidrect.height + player_namerect.centery
+                aucmenu.blit(player_bid, player_bidrect)
+        i += 100
+
+    # if game.turn != myself.id:
+    input_rect = pygame.Rect(200, HEIGHT - 200, 140, 32)
+
+    color_active = pygame.Color('lightskyblue3')
+    color_passive = pygame.Color('grey')
+
+    active = False
+    allowconfirm = True
+    for event in events:
+        if event.type == pygame.MOUSEBUTTONDOWN:
+            if input_rect.collidepoint(event.pos):
+                active = True
+            else:
+                active = False
+        if event.type == pygame.KEYDOWN:
+            if event.key == pygame.K_BACKSPACE and not myself.confirm:
+                myself.bid[game.aucround] = myself.bid[game.aucround][:-1]
+            elif event.key == pygame.K_RETURN and allowconfirm:
+                myself.confirm = True
+            if not myself.confirm:
+                # input can only be number
+                # this is not ideal right now but it works
+                if event.key == pygame.K_0:
+                    myself.bid[game.aucround] += "0"
+                elif event.key == pygame.K_1:
+                    myself.bid[game.aucround] += "1"
+                elif event.key == pygame.K_2:
+                    myself.bid[game.aucround] += "2"
+                elif event.key == pygame.K_3:
+                    myself.bid[game.aucround] += "3"
+                elif event.key == pygame.K_4:
+                    myself.bid[game.aucround] += "4"
+                elif event.key == pygame.K_5:
+                    myself.bid[game.aucround] += "5"
+                elif event.key == pygame.K_6:
+                    myself.bid[game.aucround] += "6"
+                elif event.key == pygame.K_7:
+                    myself.bid[game.aucround] += "7"
+                elif event.key == pygame.K_8:
+                    myself.bid[game.aucround] += "8"
+                elif event.key == pygame.K_9:
+                    myself.bid[game.aucround] += "9"
+
+    # enter name
+    if active:
+        color = color_active
+    else:
+        color = color_passive
+    if game.aucround < 3:
+        try:
+            if int(myself.bid[game.aucround]) > game.player_money[myself.id]:
+                bidcolor = (231, 76, 60)
+                allowconfirm = False
+            else:
+                bidcolor = (30, 132, 73)
+        except ValueError:
+            bidcolor = (30, 132, 73)
+
+        if allowconfirm and not myself.confirm:
+            if confirmbutton.blit(aucmenu):
+                myself.confirm = True
+
+        user_text_surface = base_font.render(myself.bid[game.aucround], True, bidcolor)
+        dolla = base_font.render("$", True, bidcolor)
+        name_text_surface = base_font.render("Enter your bid:", True, bidcolor)
+        input_rect.w = max(100, user_text_surface.get_width() + 15)
+        pygame.draw.rect(aucmenu, color, input_rect)
+        aucmenu.blit(dolla, (input_rect.x, input_rect.y + 5))
+        aucmenu.blit(user_text_surface, (input_rect.x + 15, input_rect.y + 5))
+        aucmenu.blit(name_text_surface, (input_rect.x, input_rect.y - name_text_surface.get_height()))
+
+    aucmenu.blit(header, headerpos)
+    screen.blit(aucmenu, (0, 0))
 
 
 def roll_dice(x: int = -1, y: int = -1) -> None:
@@ -944,6 +1130,9 @@ def main():
             draw_almostlose(game, myself)
         elif myself.auction is True:
             draw_auction(game, myself, events)
+        if game.started:
+            if game.players[game.turn].aucstart:
+                draw_auction_prop(game, myself, game.players[game.turn].aucselect, events)
         if roll:
             if stop_roll:
                 roll = False

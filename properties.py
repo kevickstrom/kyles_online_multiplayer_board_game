@@ -58,6 +58,17 @@ class PropertyMap:
         self.inorder = []
         self.start = None
         self.initmap()
+        self.colors = {
+            "brown": (143, 86, 59),
+            "bus": (255, 255, 255),
+            "blue": (99, 155, 255),
+            "pink": (215, 123, 186),
+            "orange": (223, 113, 38),
+            "red": (172, 50, 50),
+            "yellow": (251, 242, 54),
+            "green": (55, 148, 110),
+            "purple": (63, 63, 116)
+        }
 
     def initmap(self):
         """
@@ -89,9 +100,9 @@ class PropertyMap:
         red2 = Property(19, "Red 2", "red", 240)
         star2 = Property(20, "Starship 2", "starship", 0)
         star2.owned = -1
-        yellow1 = Property(21, "Yellow 1", "Yellow", 260)
-        yellow2 = Property(22, "Yellow 2", "Yellow", 280)
-        yellow3 = Property(23, "Yellow 3", "Yellow", 300)
+        yellow1 = Property(21, "Yellow 1", "yellow", 260)
+        yellow2 = Property(22, "Yellow 2", "yellow", 280)
+        yellow3 = Property(23, "Yellow 3", "yellow", 300)
         corner3 = Property(24, "Corner 3", "corner", 0)
         corner3.owned = -1
         bus4 = Property(25, "Bus 4", "bus", 200)

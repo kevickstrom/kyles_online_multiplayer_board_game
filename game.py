@@ -2,6 +2,7 @@
 
 import random
 from properties import *
+import time
 
 
 class Game:
@@ -30,6 +31,14 @@ class Game:
 
         self.color_pick = ["RED", "GREEN", "BLUE", "YELLOW", "CYAN", "MAGENTA"]
 
+        self.aucstart = False
+        self.auctioned = False
+        self.auction_data = []
+        self.aucround = 0
+        self.highbid = 0
+        self.bigbidder = None
+        self.timer = time.process_time()
+
     def start(self):
         """
         Starts the game if all 4 players press the ready button
@@ -43,7 +52,6 @@ class Game:
 
         firstturn = random.randrange(0, len(self.players))
         self.turn = self.players[firstturn].id
-        firstturn = random.randrange(0, len(self.players))
         self.rolling = True
         d1 = random.randrange(0, 6)
         d2 = random.randrange(0, 6)
@@ -97,6 +105,7 @@ class Game:
 
         # reset player daya
         self.leveled = False
+        self.auctioned = False
         self.players[self.turn].endturn = False
         self.players[self.turn].rolling = True
         self.players[self.turn].nextlocation = self.goto_next
@@ -112,3 +121,30 @@ class Game:
     def add_player(self, player):
         self.players.append(player)
         self.color_pick.remove(player.color)
+
+    def start_auction(self):
+        self.auction_data = [None] * len(self.players)  # not currently in use
+        self.auctioned = True
+        self.aucstart = True
+        self.aucround = 0
+        self.highbid = 0
+        self.bigbidder = None
+        self.timer = time.time()
+        print("starting auction")
+
+    def nextaucround(self):
+        self.timer = time.time()
+        largest = 0
+        bigbidder = None
+        for player in self.players:
+            player.confirm = False
+            if player.bid is not None:
+                if int(player.bid[self.aucround]) <= self.player_money[player.id]:
+                    if int(player.bid[self.aucround]) > largest:
+                        largest = int(player.bid[self.aucround])
+                        bigbidder = player.id
+
+        if largest > self.highbid:
+            self.highbid = largest
+            self.bigbidder = bigbidder
+        self.aucround += 1

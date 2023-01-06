@@ -24,9 +24,12 @@ class Player:
         self.paid = False
         self.sell = False
         self.sold = False
-        self.auction = False  # true if player is selecting property, prop_id: int if property is selected
+
+        self.auction = False  # true if player is selecting property
         self.aucy = 0
         self.aucselect = None  # holds the id of the property to be auctioned for the player auction select menu
+        self.aucstart = False
+        self.bid = None  # will be list of bid entries if applicable
 
         self.almostlose = False
         self.tosell = []
@@ -36,7 +39,7 @@ class Player:
         self.lvlup = False
         self.lvld = False
 
-        self.endturn = True
+        self.endturn = False
         self.rolling = False
         self.showroll = False
         self.moving = False
