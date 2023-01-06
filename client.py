@@ -356,6 +356,9 @@ def draw_players(game, myself: Player) -> None:
     """
     if game.started:
         player = game.players[game.turn]
+        if game.turn == myself.id and not myself.rolled:
+            myself.rolling = True
+
         if myself.rolling and player.id == myself.id:
             font = pygame.font.Font(None, 36)
             text = font.render("press space to roll dice", True, (10, 10, 10))
@@ -430,8 +433,10 @@ def draw_players(game, myself: Player) -> None:
             # note that each client can't actually change instance attributes of other players
             # ths is just used client side to facilitate correct animations
             player.rolling = False
+            player.rolled = True
             player.moving = False
             myself.showmoving = False
+            player.nextlocation = game.goto_next
             player.location = player.nextlocation
             player.spot = player.nextspot
         else:

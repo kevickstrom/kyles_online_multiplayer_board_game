@@ -64,6 +64,7 @@ class Game:
 
         self.players[self.turn].endturn = False
         self.players[self.turn].rolling = True
+        self.players[self.turn].rolled = False
         self.players[self.turn].nextlocation = self.goto_next
 
     def play(self):
@@ -108,6 +109,7 @@ class Game:
         self.auctioned = False
         self.players[self.turn].endturn = False
         self.players[self.turn].rolling = True
+        self.players[self.turn].rolled = False
         self.players[self.turn].nextlocation = self.goto_next
         self.players[self.turn].buy = False
         self.players[self.turn].bought = False

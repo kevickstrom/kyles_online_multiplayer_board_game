@@ -14,7 +14,7 @@ class Player:
         self.ready = False
         self.lost = False
 
-        self.location = None  # id of the current location
+        self.location = 0  # id of the current location
         self.spot = 0
         self.nextlocation = 99  # id of the next location
         self.nextspot = 0
@@ -41,6 +41,7 @@ class Player:
 
         self.endturn = False
         self.rolling = False
+        self.rolled = False
         self.showroll = False
         self.moving = False
         self.showmoving = False
