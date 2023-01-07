@@ -29,12 +29,13 @@ class Player:
         self.aucy = 0
         self.aucselect = None  # holds the id of the property to be auctioned for the player auction select menu
         self.aucstart = False
-        self.bid = None  # will be list of bid entries if applicable
+        self.bid = None  # will be list of bid entries if applicable - ["", "", ""]
         self.aucround = 0
 
         self.almostlose = False
-        self.tosell = []
-        self.leveldown = {}
+        self.aly = 0
+        self.tosell = []  # list of propid to sell
+        self.leveldown = {}  # key: propid, value: # to level down property
         self.confirm = False
 
         self.lvlup = False
@@ -46,5 +47,7 @@ class Player:
         self.showroll = False
         self.moving = False
         self.showmoving = False
+
+        self.menucolor = 0
 
         self.timer = time.process_time()

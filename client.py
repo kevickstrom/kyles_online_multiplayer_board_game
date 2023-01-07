@@ -3,6 +3,14 @@
 # vickskyl@oregonstate.edu
 # https://github.com/kevickstrom/monopoly_butonlykylecancheat
 
+# TODO: doubles
+# TODO: jail
+# TODO: tuition due
+# TODO: corners
+# TODO: starships
+# TODO: ending / winning / losing sequence
+# TODO: endgame statistics
+
 import os
 import sys
 import random
@@ -49,6 +57,7 @@ notendturnimg = pygame.image.load(os.path.join('assets', "notendturn.png"))
 buyimg = pygame.image.load(os.path.join('assets', "buy.png"))
 lvlupimg = pygame.image.load(os.path.join('assets', "levelup.png"))
 sellimg = pygame.image.load(os.path.join('assets', "sell.png"))
+almostlose_sellimg = pygame.image.load(os.path.join('assets', "almostlose_sell.png"))
 notsellimg = pygame.image.load(os.path.join('assets', "notsell.png"))
 leveldownimg = pygame.image.load(os.path.join('assets', "leveldown.png"))
 notleveldownimg = pygame.image.load(os.path.join('assets', "notleveldown.png"))
@@ -369,7 +378,7 @@ def draw_players(game, myself: Player) -> None:
         if player.rolling and player.showroll:
             roll_dice()
             myself.showmoving = True
-        elif not player.rolling and player.showroll:
+        elif player.rolled:
             roll_dice(game.lastroll[0], game.lastroll[1])
         if player.moving and myself.showmoving:
             player.nextspot = 0
@@ -537,126 +546,148 @@ def draw_turn(game, myself: Player) -> None:
                 pass
 
 
-def draw_almostlose(game, myself) -> None:
+def draw_almostlose(game, myself, events) -> None:
     """
     Draws the selling / mortgage property tab because you almost lost
+    TODO: make more like auction menu
     """
-    almostlosebckgrnd = button.Button(WIDTH // 2, HEIGHT // 2, almostloseimg)
-    almostlosebckgrnd.draw()
-    confirmbutton = button.Button((WIDTH // 2) + 128, HEIGHT - 96, confirmimg)
-    cancelbutton = button.Button((WIDTH // 2) - 32, HEIGHT - 96, cancelimg)
-    font = pygame.font.Font(None, 64)
-    header = font.render("Wow! You almost lost...", True, (255, 255, 255))
+    for event in events:
+        if event.type == pygame.MOUSEBUTTONDOWN:
+            if event.button == 4:
+                myself.aly = min(myself.aly + 15, 0)
+            if event.button == 5:
+                myself.aly = max(myself.aly - 15, -1 * HEIGHT // 2)
+    menuwid = WIDTH - boardrect.width
+    almostlose = pygame.surface.Surface((menuwid, HEIGHT * 2))
+    # almostlosebckgrnd = button.Button(WIDTH // 2, HEIGHT // 2, almostloseimg)
+    # almostlosebckgrnd.draw()
+    confirmbutton = button.Button(menuwid//2 + 64, 32, confirmimg)
+    cancelbutton = button.Button(menuwid//2 - 64, 32, cancelimg)
+    font = pygame.font.Font(None, 32)
+    headerfont = pygame.font.Font(None, 64)
+    header = headerfont.render("Wow! You almost lost...", True, (255, 255, 255))
     headerpos = header.get_rect()
-    headerpos.centerx = WIDTH // 2
+    headerpos.centerx = menuwid // 2
     headerpos.centery = propwidth
-    screen.blit(header, headerpos)
-    # used to tally all sold / level down $$$ to make sure it pays off debt
+    almostlose.blit(header, headerpos)
+    footer = pygame.surface.Surface((menuwid, 64))
+    footer.fill((15, 0, 0))
+    # # used to tally all sold / level down $$$ to make sure it pays off debt
     networth = 0
     # find all owned properties
     myprops = []
     for props in game.propmap.inorder:
         if props.owned == myself.id:
             myprops.append(props)
-    # list all properties and ther level
-    font = pygame.font.Font(None, 32)
+    # list all properties and their level
     for i in range(len(myprops)):
-        owned_prop = font.render(f"{myprops[i].name}    lvl:{myprops[i].level}", True, (0, 0, 0))
+        owned_prop = font.render(f"{myprops[i].name}    lvl:{myprops[i].level}", True,
+                                 game.propmap.colors[myprops[i].color])
         owned_prop_pos = owned_prop.get_rect()
-        owned_prop_pos.x = WIDTH // 2 - headerpos.width
+        owned_prop_pos.x = 10
         owned_prop_pos.centery = (2 * propwidth) + i * (propwidth // 2)
-        screen.blit(owned_prop, owned_prop_pos)
+
         # list the price they will sell for
         sellprice = font.render(f"+${myprops[i].price * (myprops[i].level + 1)}", True, (60, 179, 113))
         sellprice_pos = sellprice.get_rect()
-        sellprice_pos.centerx = WIDTH // 2 + 32
+        sellprice_pos.centerx = menuwid // 2 + 32
         sellprice_pos.centery = (2 * propwidth) + i * (propwidth // 2)
-        screen.blit(sellprice, sellprice_pos)
+
+        almostlose.blit(owned_prop, owned_prop_pos)
+        almostlose.blit(sellprice, sellprice_pos)
         # list the price for one level down if applicable
         # show the leveling down button
 
         if myprops[i].id in myself.leveldown.keys():
             # show button if we can still level down
             if myprops[i].level - myself.leveldown[myprops[i].id] > 1:
-                lvldownbutton = button.Button(WIDTH // 2 - 64, (2 * propwidth) + i * (propwidth // 2), leveldownimg,
-                                              0.75)
+                lvldownbutton = button.Button(menuwid // 2 - 64, (2 * propwidth) + i * (propwidth // 2), leveldownimg)
                 lvldownprice = font.render(f"+${myprops[i].price}", True, (60, 179, 113))
                 lvldownprice_pos = lvldownprice.get_rect()
-                lvldownprice_pos.x = WIDTH // 2 - 64 - 2 * lvldownprice_pos.width
+                lvldownprice_pos.x = menuwid // 2 - 64 - 2 * lvldownprice_pos.width
                 lvldownprice_pos.centery = (2 * propwidth) + i * (propwidth // 2)
-                screen.blit(lvldownprice, lvldownprice_pos)
-                if lvldownbutton.draw():
+
+                almostlose.blit(lvldownprice, lvldownprice_pos)
+                if lvldownbutton.blit(almostlose):
                     myself.leveldown[myprops[i].id] = myself.leveldown[myprops[i].id] + 1
                     time.sleep(0.2)
             # show how many levels to drop
             lvls = font.render(f"-{myself.leveldown[myprops[i].id]} lvls", True, (60, 179, 113))
             lvls_pos = lvls.get_rect()
-            lvls_pos.centerx = WIDTH // 2 + almostlosebckgrnd.rect.width // 2 - (3 * lvls.get_width())
+            lvls_pos.centerx = menuwid - (3 * lvls.get_width())
             lvls_pos.centery = (2 * propwidth) + i * (propwidth // 2)
-            screen.blit(lvls, lvls_pos)
+            almostlose.blit(lvls, lvls_pos)
             # show $$$ from leveling down on the right side
             addprice = font.render(f"+${myprops[i].price * myself.leveldown[myprops[i].id]}", True, (60, 179, 113))
             newpos = addprice.get_rect()
-            newpos.centerx = WIDTH // 2 + almostlosebckgrnd.rect.width // 2 - addprice.get_width()
+            newpos.centerx = menuwid - addprice.get_width()
             newpos.centery = (2 * propwidth) + i * (propwidth // 2)
-            screen.blit(addprice, newpos)
+
+            almostlose.blit(addprice, newpos)
             # tally $$$
             networth += myprops[i].price * myself.leveldown[myprops[i].id]
 
         elif myprops[i].level > 1:
             # show level down button
-            lvldownbutton = button.Button(WIDTH // 2 - 64, (2 * propwidth) + i * (propwidth // 2), leveldownimg,
-                                          0.75)
+            lvldownbutton = button.Button(menuwid // 2 - 64, (2 * propwidth) + i * (propwidth // 2), leveldownimg)
             lvldownprice = font.render(f"+${myprops[i].price}", True, (60, 179, 113))
             lvldownprice_pos = lvldownprice.get_rect()
-            lvldownprice_pos.x = WIDTH // 2 - 64 - 2 * lvldownprice_pos.width
+            lvldownprice_pos.x = menuwid // 2 - 64 - 2 * lvldownprice_pos.width
             lvldownprice_pos.centery = (2 * propwidth) + i * (propwidth // 2)
-            screen.blit(lvldownprice, lvldownprice_pos)
-            if lvldownbutton.draw():
+            almostlose.blit(lvldownprice, lvldownprice_pos)
+            if lvldownbutton.blit(almostlose, myself.aly):
                 myself.leveldown[myprops[i].id] = 1
+                if myprops[i].id in myself.sell:
+                    myself.sell.remove(myprops[i].id)
                 time.sleep(0.2)
 
         else:
             # show the grayed out button
-            notlvldownbutton = button.Button(WIDTH // 2 - 64, (2 * propwidth) + i * (propwidth // 2),
-                                             notleveldownimg, 0.75)
-            if notlvldownbutton.draw():
+            notlvldownbutton = button.Button(menuwid // 2 - 64, (2 * propwidth) + i * (propwidth // 2),
+                                             notleveldownimg)
+            if notlvldownbutton.blit(almostlose):
                 pass
         # check if current items are enough to remain in the game
         # show grayed sell button
         if myprops[i].id in myself.tosell:
-            notsellbutton = button.Button(WIDTH // 2 + 128, (2 * propwidth) + i * (propwidth // 2), notsellimg, 0.75)
-            if notsellbutton.draw():
+            notsellbutton = button.Button(menuwid // 2 + 128, (2 * propwidth) + i * (propwidth // 2), notsellimg)
+            if notsellbutton.blit(almostlose):
                 pass
             addprice = font.render(f"+${myprops[i].price * (myprops[i].level + 1)}", True, (60, 179, 113))
             newpos = addprice.get_rect()
-            newpos.centerx = WIDTH // 2 + almostlosebckgrnd.rect.width // 2 - addprice.get_width()
+            newpos.centerx = menuwid - addprice.get_width()
             newpos.centery = (2 * propwidth) + i * (propwidth // 2)
-            screen.blit(addprice, newpos)
+
+            almostlose.blit(addprice, newpos)
             networth += myprops[i].price * (myprops[i].level + 1)
         else:
             # show sell button
-            sellbutton = button.Button(WIDTH // 2 + 128, (2 * propwidth) + i * (propwidth // 2), sellimg, 0.75)
-            if sellbutton.draw():
+            sellbutton = button.Button(menuwid // 2 + 128, (2 * propwidth) + i * (propwidth // 2), almostlose_sellimg)
+            if sellbutton.blit(almostlose, myself.aly):
                 myself.tosell.append(myprops[i].id)
+                if myprops[i].id in myself.leveldown.keys():
+                    myself.leveldown.__delitem__(myprops[i].id)
         # if $ is enough show total in green ( $ > 0 )
     if game.player_money[myself.id] + networth > 0:
         newtotal = font.render(f"New Total: ${game.player_money[myself.id] + networth}", True, (60, 179, 113))
         # allow player to confirm
-        if confirmbutton.draw():
+        if confirmbutton.blit(footer, HEIGHT - 64):
             myself.confirm = True
     else:
         # show total in red ( < $0 )
         newtotal = font.render(f"New Total: ${game.player_money[myself.id] + networth}", True, (255, 0, 0))
     newtotalpos = newtotal.get_rect()
-    newtotalpos.centerx = WIDTH // 2 + almostlosebckgrnd.rect.width // 2 - newtotal.get_width()
-    newtotalpos.centery = HEIGHT - 96
-    screen.blit(newtotal, newtotalpos)
+    newtotalpos.centerx = menuwid - newtotal.get_width()
+    newtotalpos.centery = 32
+
+    footer.blit(newtotal, newtotalpos)
 
     # restart selling / leveling down
-    if cancelbutton.draw():
+    if cancelbutton.blit(footer, HEIGHT - 64):
         myself.tosell = []
         myself.leveldown = {}
+    screen.blit(almostlose, (0, myself.aly))
+    screen.blit(footer, (0, HEIGHT - 64))
 
 
 def draw_auction(game, myself: Player, events) -> None:
@@ -689,7 +720,7 @@ def draw_auction(game, myself: Player, events) -> None:
     for prop in game.propmap.inorder:
         if prop.owned == myself.id:
             # text
-            owned_prop = font.render(f"{prop.name}    lvl:{prop.level}", True, (255, 255, 255))
+            owned_prop = font.render(f"{prop.name}    lvl:{prop.level}", True, game.propmap.colors[prop.color])
             if prop.level == 0:
                 info = font.render(f"price: {prop.price}    invested: ${prop.price}", True, (40, 180, 99))
             else:
@@ -744,7 +775,8 @@ def draw_auction(game, myself: Player, events) -> None:
 
 def draw_auction_prop(game, myself: Player, propid: int, events):
     """
-    TODO: write auctioning
+    Draws and handles property auctions
+    TODO: fix default value "" and "0"
     """
     confirmbutton = button.Button(200 + 64, HEIGHT - 200 + 64, confirmimg)
     menuwid = WIDTH - boardrect.width
@@ -863,14 +895,13 @@ def draw_auction_prop(game, myself: Player, propid: int, events):
     color_active = pygame.Color('lightskyblue3')
     color_passive = pygame.Color('grey')
 
-    active = False
     allowconfirm = True
     for event in events:
         if event.type == pygame.MOUSEBUTTONDOWN:
             if input_rect.collidepoint(event.pos):
-                active = True
+                myself.menucolor = 1
             else:
-                active = False
+                myself.menucolor = 0
         if event.type == pygame.KEYDOWN:
             if event.key == pygame.K_BACKSPACE and not myself.confirm:
                 myself.bid[game.aucround] = myself.bid[game.aucround][:-1]
@@ -900,8 +931,7 @@ def draw_auction_prop(game, myself: Player, propid: int, events):
                 elif event.key == pygame.K_9:
                     myself.bid[game.aucround] += "9"
 
-    # enter name
-    if active:
+    if myself.menucolor == 1:
         color = color_active
     else:
         color = color_passive
@@ -927,6 +957,9 @@ def draw_auction_prop(game, myself: Player, propid: int, events):
         aucmenu.blit(dolla, (input_rect.x, input_rect.y + 5))
         aucmenu.blit(user_text_surface, (input_rect.x + 15, input_rect.y + 5))
         aucmenu.blit(name_text_surface, (input_rect.x, input_rect.y - name_text_surface.get_height()))
+    if myself.confirm:
+        if myself.bid[game.aucround] == "" or not allowconfirm:
+            myself.bid[game.aucround] = "1"
 
     aucmenu.blit(header, headerpos)
     screen.blit(aucmenu, (0, 0))
@@ -1021,16 +1054,15 @@ def draw_start_menu(game, myself: Player, events) -> bool:
     else:
         right_button = button.Button(WIDTH // 2 + 250, HEIGHT // 2, faces[choice], 1)
 
-    active = False
     menu = True
     # event handling
     for event in events:
         pass
         if event.type == pygame.MOUSEBUTTONDOWN:
             if input_rect.collidepoint(event.pos):
-                active = True
+                myself.menucolor = 1
             else:
-                active = False
+                myself.menucolor = 0
         if event.type == pygame.KEYDOWN:
             if event.key == pygame.K_BACKSPACE:
                 myself.name = myself.name[:-1]
@@ -1041,7 +1073,7 @@ def draw_start_menu(game, myself: Player, events) -> bool:
 
         # color the screen and blit
         screen.fill((52, 78, 91))
-        if active:
+        if myself.menucolor == 1:
             color = color_active
         else:
             color = color_passive
@@ -1134,15 +1166,16 @@ def main():
             myself = draw_ui(game, myself)
             draw_players(game, myself)
             draw_turn(game, myself)
-        if myself.almostlose:
-            draw_almostlose(game, myself)
-        elif myself.auction is True:
+        # if myself.almostlose:
+        if game.started:
+            draw_almostlose(game, myself, events)
+        if myself.auction is True:
             draw_auction(game, myself, events)
         if game.started:
             if game.auctioned:
-                if game.players[game.turn].aucselect is not None:
+                if game.aucstart:
                     draw_auction_prop(game, myself, game.players[game.turn].aucselect, events)
-                if not game.aucstart:
+                else:
                     myself.aucstart = False
         if roll:
             if stop_roll:
@@ -1150,6 +1183,7 @@ def main():
                 myself.rolling = False
                 myself.moving = True
                 myself.showmoving = True
+                myself.rolled = True
 
         pygame.display.flip()
         clock.tick(60)
