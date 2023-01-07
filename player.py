@@ -30,6 +30,7 @@ class Player:
         self.aucselect = None  # holds the id of the property to be auctioned for the player auction select menu
         self.aucstart = False
         self.bid = None  # will be list of bid entries if applicable
+        self.aucround = 0
 
         self.almostlose = False
         self.tosell = []

@@ -520,15 +520,16 @@ def draw_turn(game, myself: Player) -> None:
             screen.blit(lvltext, lvltextpos)
         # end turn buttons and auction
         rolled = not myself.endturn and myself.location == myself.nextlocation and not myself.rolling
-        eligible = not myself.lost and not game.auctioned
+        eligible = not myself.lost and not game.aucstart
         if rolled and eligible:
             if myself.auction is not True:
                 if endturn.draw():
                     myself.endturn = True
                     myself.showroll = False
                 # auction
-                if auction.draw():
-                    myself.auction = True
+                if not game.auctioned:
+                    if auction.draw():
+                        myself.auction = True
         else:
             if notendturn.draw():
                 pass
@@ -749,11 +750,13 @@ def draw_auction_prop(game, myself: Player, propid: int, events):
     menuwid = WIDTH - boardrect.width
     aucmenu = pygame.surface.Surface((menuwid, HEIGHT))
     headerfont = pygame.font.Font(None, 48)
-    if game.aucstart and not myself.aucstart:
+    if game.aucstart and not myself.aucstart and game.auctioned:
         myself.bid = ["", "", ""]  # blank for each round to fill out bid
         myself.aucstart = True
         print("auc started")
-        # myself.timer = time.process_time()
+    if myself.aucround != game.aucround:
+        myself.confirm = False
+        myself.aucround = game.aucround
     roundtime = round(30 - (time.time() - game.timer), 1)
 
     # headers
@@ -1136,8 +1139,11 @@ def main():
         elif myself.auction is True:
             draw_auction(game, myself, events)
         if game.started:
-            if game.players[game.turn].aucstart:
-                draw_auction_prop(game, myself, game.players[game.turn].aucselect, events)
+            if game.auctioned:
+                if game.players[game.turn].aucselect is not None:
+                    draw_auction_prop(game, myself, game.players[game.turn].aucselect, events)
+                if not game.aucstart:
+                    myself.aucstart = False
         if roll:
             if stop_roll:
                 roll = False

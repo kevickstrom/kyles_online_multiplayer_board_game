@@ -90,7 +90,7 @@ def threaded_client(conn, p, gameId):
                                     game.moved = True
                             if player.location == player.nextlocation:
                                 game.rolling = False
-                            if player.aucstart and not game.aucstart:
+                            if player.aucstart and not game.aucstart and not game.auctioned:
                                 game.start_auction()
                             elif game.aucstart:
                                 timeleft = round(30 - (time.time() - game.timer), 1)
@@ -104,11 +104,34 @@ def threaded_client(conn, p, gameId):
                                     game.nextaucround()
                                 elif game.aucround == 3:
                                     if timeleft < 20:
+                                        # sell and reassign property, move money
+                                        game.propmap.inorder[game.players[game.turn].aucselect].sell()
+                                        game.propmap.inorder[game.players[game.turn].aucselect].owned = game.bigbidder
+                                        game.player_money[game.bigbidder] -= game.highbid
+                                        game.player_money[game.turn] += game.highbid
+                                        print(f"sold {game.propmap.inorder[game.players[game.turn].aucselect].name}"
+                                              f" to {game.players[game.bigbidder].name} for ${game.highbid}")
+                                        # check for monopoly
+                                        color = game.propmap.inorder[game.players[game.turn].aucselect].color
+                                        samecolor = []
+                                        for prop in game.propmap.inorder:
+                                            if prop.color == color:
+                                                samecolor.append(prop)
+                                        monopoly = True
+                                        for prop in samecolor:
+                                            if prop.owned != game.bigbidder:
+                                                monopoly = False
+                                        if monopoly:
+                                            for prop in samecolor:
+                                                prop.monopoly = True
+                                                prop.level_up()
+
+                                        game.aucstart = False
+                                        # reset player vars
                                         for user in game.players:
                                             user.aucstart = False
                                             user.confirm = False
                                             user.aucselect = None
-                                        game.aucstart = False
 
                             if player.endturn:
                                 game.endturn = True
@@ -117,7 +140,7 @@ def threaded_client(conn, p, gameId):
                                 game.player_money[game.turn] += 200
                             landed_on = game.propmap.inorder[game.goto_next]
                             if landed_on.owned is not None and landed_on.owned != player.id and not game.rent_paid:
-                                if not player.rolling and landed_on.owned > -1:
+                                if not player.rolling and landed_on.owned > -1 and not game.auctioned:
                                     game.rent_paid = True
                                     player.paid = True
                                     game.player_money[game.turn] -= landed_on.rent

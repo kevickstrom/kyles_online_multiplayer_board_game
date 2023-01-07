@@ -107,6 +107,7 @@ class Game:
         # reset player daya
         self.leveled = False
         self.auctioned = False
+        self.aucstart = False
         self.players[self.turn].endturn = False
         self.players[self.turn].rolling = True
         self.players[self.turn].rolled = False
@@ -119,6 +120,7 @@ class Game:
         self.players[self.turn].sell = False
         self.players[self.turn].sold = False
         self.players[self.turn].almostlose = False
+        self.players[self.turn].aucstart = False
 
     def add_player(self, player):
         self.players.append(player)
