@@ -974,31 +974,22 @@ def roll_dice(x: int = -1, y: int = -1) -> None:
     if x == -1:
         num1 = random.randrange(0, 6)
         dice1 = faces[num1]
-        dice1rect = dice1.get_rect()
-        dice1rect.centerx = boardrect.centerx - 25
-        dice1rect.centery = boardrect.centery
-        screen.blit(dice1, dice1rect)
-
         num2 = random.randrange(0, 6)
         dice2 = faces[num2]
-        dice2rect = dice2.get_rect()
-        dice2rect.centerx = boardrect.centerx + 25
-        dice2rect.centery = boardrect.centery
-        screen.blit(dice2, dice2rect)
     # show final faces
     else:
         dice1 = faces[x]
         dice2 = faces[y]
-        dice1rect = dice1.get_rect()
-        dice1rect.centerx = boardrect.centerx - 25
-        dice1rect.centery = boardrect.centery
 
-        dice2rect = dice2.get_rect()
-        dice2rect.centerx = boardrect.centerx + 25
-        dice2rect.centery = boardrect.centery
+    dice1rect = dice1.get_rect()
+    dice1rect.centerx = boardrect.centerx - 25
+    dice1rect.centery = boardrect.centery
+    screen.blit(dice1, dice1rect)
 
-        screen.blit(dice1, dice1rect)
-        screen.blit(dice2, dice2rect)
+    dice2rect = dice2.get_rect()
+    dice2rect.centerx = boardrect.centerx + 25
+    dice2rect.centery = boardrect.centery
+    screen.blit(dice2, dice2rect)
 
 
 def settings_menu() -> None:
@@ -1166,8 +1157,7 @@ def main():
             myself = draw_ui(game, myself)
             draw_players(game, myself)
             draw_turn(game, myself)
-        # if myself.almostlose:
-        if game.started:
+        if myself.almostlose:
             draw_almostlose(game, myself, events)
         if myself.auction is True:
             draw_auction(game, myself, events)
