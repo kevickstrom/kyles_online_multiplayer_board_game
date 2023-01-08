@@ -46,6 +46,7 @@ board = pygame.transform.smoothscale(board, (HEIGHT, HEIGHT))
 boardrect = board.get_rect()
 
 # button images
+logoimg = pygame.image.load(os.path.join('assets', "logo.png"))
 settingsimg = pygame.image.load(os.path.join('assets', "settings2.png"))
 exitimg = pygame.image.load(os.path.join('assets', "exit.png"))
 backimg = pygame.image.load(os.path.join('assets', "back.png"))
@@ -1018,6 +1019,11 @@ def settings_menu() -> None:
             if event.type == pygame.QUIT:
                 pygame.quit()
                 sys.exit()
+
+        logorect = logoimg.get_rect()
+        logorect.centerx = WIDTH // 2
+        logorect.centery = HEIGHT // 4
+        screen.blit(logoimg, logorect)
         pygame.display.flip()
         clock.tick(60)
 
@@ -1095,6 +1101,10 @@ def draw_start_menu(game, myself: Player, events) -> bool:
         screen.blit(user_text_surface, (input_rect.x + 5, input_rect.y + 5))
         screen.blit(name_text_surface, (input_rect.x, input_rect.y - name_text_surface.get_height()))
 
+    logorect = logoimg.get_rect()
+    logorect.centerx = WIDTH // 2
+    logorect.centery = 3*logorect.height // 4
+    screen.blit(logoimg, logorect)
     if not menu:
         myself.color = color_choices[choice]
         myself.location = 0
