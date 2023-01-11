@@ -701,7 +701,7 @@ def draw_auction(game, myself: Player, events) -> None:
     cancelbutton = button.Button((WIDTH - boardrect.width)//2 - 64, HEIGHT - 32, cancelimg)
     exitbutton = button.Button((WIDTH - boardrect.width)//2 - 64, HEIGHT - 32, exitimg)
     font = pygame.font.Font(None, 32)
-    headerfont = pygame.font.Font(None, 64)
+    headerfont = pygame.font.Font(None, 48)
     header = headerfont.render("Select the property to auction:", True, (255, 255, 255))
     headerpos = header.get_rect()
     headerpos.centerx = (WIDTH - boardrect.width)//2
@@ -735,11 +735,11 @@ def draw_auction(game, myself: Player, events) -> None:
             info_pos.centery = (2 * propwidth) + i * (propwidth // 2)
 
             # selection buttons
-            selectbutton = button.Button((WIDTH - boardrect.width) - 150, (2 * propwidth) + i * (propwidth // 2),
+            selectbutton = button.Button((WIDTH - boardrect.width) - 64, (2 * propwidth) + i * (propwidth // 2),
                                          selectimg)
-            selectedbutton = button.Button((WIDTH - boardrect.width) - 150, (2 * propwidth) + i * (propwidth // 2),
+            selectedbutton = button.Button((WIDTH - boardrect.width) - 64, (2 * propwidth) + i * (propwidth // 2),
                                            selectedimg)
-            notselectbutton = button.Button((WIDTH - boardrect.width) - 150, (2 * propwidth) + i * (propwidth // 2),
+            notselectbutton = button.Button((WIDTH - boardrect.width) - 64, (2 * propwidth) + i * (propwidth // 2),
                                             notselectimg)
 
             if myself.aucselect is None:
